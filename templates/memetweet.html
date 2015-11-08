@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block links %}
+	<link rel="stylesheet" href="{{ url_for('static', filename='memetweet.css') }}">
+{% endblock %}
+
+{% block memetweet %}
+	<div class="memetweet_container">
+		<div class="memetweet_person">
+			<p class="name"> {{memetweet_name}} </p>
+			<button class="heart heart_full"> <span class="glyphicon glyphicon-heart" aria-hidden="true"></span> </button>
+			<button class="heart heart_empty"> <span class="glyphicon glyphicon-heart-empty" aria-hidden="true"></span> </button>
+		</div>
+	<div class="memetweet_content">
+		<p> {{memetweet_title}} </p>
+		<img src="{{memetweet_image}}" class="memetweet_image"/>
+	</div>
+	<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+	  <div class="panel panel-default">
+	    <div class="panel-heading" role="tab" id="headingOne">
+	      <h4 class="panel-title">
+	        <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+	          View Comments
+	        </a>
+	      </h4>
+	    </div>
+	    <div id="collapseOne" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne">
+	      <div class="panel-body">
+	        Rona needs to put comments here
+	      </div>
+	    </div>
+	  </div>
+	</div>
+</div>
+{% endblock %}

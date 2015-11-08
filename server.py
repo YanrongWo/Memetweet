@@ -39,7 +39,11 @@ def teardown_request(exception):
 
 @app.route('/', methods=["POST", "GET"])
 def index():
-	return render_template("base.html")
+	mydict = {}
+	mydict["memetweet_name"] = "Rona Wo"
+	mydict["memetweet_title"] = "Test Puppy Image"
+	mydict["memetweet_image"] = "https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcRSeispWpEabZbYn7fIE74Bmm71pKWXvf1tJElobLkiEpl4sx35njAwamIx"
+	return render_template("memetweet.html", **mydict)
 
 if __name__ == "__main__":
   import click
