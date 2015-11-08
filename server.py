@@ -37,16 +37,56 @@ def teardown_request(exception):
   except Exception as e:
     pass
 
+
+loggedin = false
+userid = ''
+
+@app.route('/test1/', methods=["POST", "GET"])
+def test1():
+  loggedin = true
+  userid = request.form['userid']
+  print userid
+  return ''
+
+
+
+@app.route('/test2/', methods=["POST", "GET"])
+def test2():
+  loggedin = false
+  userid = null
+  return ''
+
+
+@app.route('/test3/', methods=["POST", "GET"])
+def test3():
+  loggedin = false
+  userid = null
+  return ''
+
+
+app.route('/animals/', methods=["POST", "GET"])
+def animals():
+  
+  cursor = g.conn.execute("SELECT distinct name FROM category")
+  names = []
+  for result in cursor:
+    names.append(result['name'])
+  cursor.close()
+  context=dict(data=names)
+  
+  return render_template("animals.html", **context)
+
 @app.route('/', methods=["POST", "GET"])
-def index():
-	mydict = {}
-	"""mydict["memetweet_name"] = "Rona Wo"
-	mydict["memetweet_title"] = "Test Puppy Image"
-	mydict["memetweet_image"] = "https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcRSeispWpEabZbYn7fIE74Bmm71pKWXvf1tJElobLkiEpl4sx35njAwamIx"
-	mydict["comment_name"] = "It's Rona Again";
-	mydict["comment_content"] = "Ronas test comment";"""
-	mydict["all_memetweet_id"] = "1"
-	return render_template("memetweet.html", **mydict)
+<<<<<<< HEAD
+def index():  
+  cursor = g.conn.execute("SELECT distinct name FROM category")
+  names = []
+  for result in cursor:
+    names.append(result['name'])
+  cursor.close()
+  context=dict(data=names)
+  return render_template("menu.html", **context)
+=======
 
 @app.route('/RonasTest', methods=["POST", "GET"])
 def ronasTest():
