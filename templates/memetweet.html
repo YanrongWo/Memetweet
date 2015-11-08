@@ -127,9 +127,7 @@
 		  					"</div>" +
 						"</div>" +
 					"</div>";
-		console.log(toAddHtml);
 		var divOfInterest = document.getElementById(divToAppend);
-		console.log(divOfInterest);
 		divOfInterest.innerHTML += toAddHtml;
 	}
 
@@ -147,9 +145,8 @@
 		toAddHtml += "		</p>"
 		    			"</div>" +
 		    		"</div>";
-		var memetweet = $(divToAppend).find('meme' + memetweet_id)[0]; 
-		var comment_panel = memetweet.find('.panel-body')[0];
-		comment_panel.append(toAddHtml);
+		var memetweet = $("#" + divToAppend + " #meme" + memetweet_id + " .panel-body").append(toAddHtml);
 	}
+	addComment("1", "Rona Again", "This is my super interesting comment", "1");
 </script>
 {% endblock %}
