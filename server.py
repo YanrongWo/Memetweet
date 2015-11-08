@@ -40,9 +40,12 @@ def teardown_request(exception):
 @app.route('/', methods=["POST", "GET"])
 def index():
 	mydict = {}
-	mydict["memetweet_name"] = "Rona Wo"
+	"""mydict["memetweet_name"] = "Rona Wo"
 	mydict["memetweet_title"] = "Test Puppy Image"
 	mydict["memetweet_image"] = "https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcRSeispWpEabZbYn7fIE74Bmm71pKWXvf1tJElobLkiEpl4sx35njAwamIx"
+	mydict["comment_name"] = "It's Rona Again";
+	mydict["comment_content"] = "Ronas test comment";"""
+	mydict["all_memetweet_id"] = "1"
 	return render_template("memetweet.html", **mydict)
 
 if __name__ == "__main__":
