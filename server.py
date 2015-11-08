@@ -43,7 +43,7 @@ userid = ''
 
 @app.route('/test1/', methods=["POST", "GET"])
 def test1():
-  loggedin = true
+  loggedin = True
   userid = request.form['userid']
   print userid
   return ''
@@ -52,15 +52,15 @@ def test1():
 
 @app.route('/test2/', methods=["POST", "GET"])
 def test2():
-  loggedin = false
-  userid = null
+  loggedin = False
+  userid = none
   return ''
 
 
 @app.route('/test3/', methods=["POST", "GET"])
 def test3():
-  loggedin = false
-  userid = null
+  loggedin = False
+  userid = none
   return ''
 
 
@@ -199,6 +199,24 @@ def index():
   context=dict(data=names)
   return render_template("menu.html", **context)
 
+
+@app.route('/RonasTest', methods=["POST", "GET"])
+def ronasTest():
+	mydict = {}
+	"""mydict["memetweet_name"] = "Rona Wo"
+	mydict["memetweet_title"] = "Test Puppy Image"
+	mydict["memetweet_image"] = "https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcRSeispWpEabZbYn7fIE74Bmm71pKWXvf1tJElobLkiEpl4sx35njAwamIx"
+	mydict["comment_name"] = "It's Rona Again";
+	mydict["comment_content"] = "Ronas test comment";"""
+	mydict["all_memetweet_id"] = "1"
+	return render_template("memetweet.html", **mydict)
+
+@app.route('/like/', methods=["POST", "GET"])
+def like():
+	memeid = request.form['memeId']
+	#q = "INSERT INTO upvotes Values (%s, %s);" 
+	#g.conn.execute(q, (userid, memeid))
+	return ""
 
 if __name__ == "__main__":
   import click

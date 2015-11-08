@@ -34,13 +34,38 @@
 	position: relative;
 	float: right;
 	display: inline-block;
+}
+
+.default_button{
 	padding: 10px;
 	background-color: white;
 	border: 1px #ccc solid;
 	border-radius: 4px;
+	height: 40px;
 }
 
-.heart:hover{
+.heart_full{
+	display: none;
+}
+
+.retweet{
+	position: relative;
+	float: right;
+}
+
+.default_button:hover{
+	background-color: #ccc;
+}
+
+.comment_bar{
+	display: inline;
+    background-color: transparent;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 10px;
+}
+
+.comment_bar:hover{
 	background-color: #ccc;
 }
 
@@ -81,5 +106,5 @@ p{
 .view_comments{
 	display: inline;
 	position: relative;
-	top: 5px;
+	top: 10px;
 }
