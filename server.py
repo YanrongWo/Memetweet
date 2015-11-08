@@ -37,9 +37,54 @@ def teardown_request(exception):
   except Exception as e:
     pass
 
+
+loggedin = false
+userid = ''
+
+@app.route('/test1/', methods=["POST", "GET"])
+def test1():
+  loggedin = true
+  userid = request.form['userid']
+  print userid
+  return ''
+
+
+
+@app.route('/test2/', methods=["POST", "GET"])
+def test2():
+  loggedin = false
+  userid = null
+  return ''
+
+
+@app.route('/test3/', methods=["POST", "GET"])
+def test3():
+  loggedin = false
+  userid = null
+  return ''
+
+
+app.route('/animals/', methods=["POST", "GET"])
+def animals():
+  
+  cursor = g.conn.execute("SELECT distinct name FROM category")
+  names = []
+  for result in cursor:
+    names.append(result['name'])
+  cursor.close()
+  context=dict(data=names)
+  
+  return render_template("animals.html", **context)
+
 @app.route('/', methods=["POST", "GET"])
-def index():
-	return render_template("base.html")
+def index():  
+  cursor = g.conn.execute("SELECT distinct name FROM category")
+  names = []
+  for result in cursor:
+    names.append(result['name'])
+  cursor.close()
+  context=dict(data=names)
+  return render_template("menu.html", **context)
 
 if __name__ == "__main__":
   import click
