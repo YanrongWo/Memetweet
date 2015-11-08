@@ -39,13 +39,7 @@ def teardown_request(exception):
 
 @app.route('/', methods=["POST", "GET"])
 def index():
-	cursor = g.conn.execute("SELECT id FROM memetweet;")
-	ids = []
-	for result in cursor:
-		ids.append(result['id'])
-	cursor.close();
-	context = dict( data = ids )
-	return render_template("index.html", **context)
+	return render_template("base.html")
 
 if __name__ == "__main__":
   import click
