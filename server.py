@@ -1,7 +1,7 @@
 import os
 from sqlalchemy import *
 from sqlalchemy.pool import NullPool
-from flask import Flask, request, render_template, g, redirect, Response
+from flask import Flask, request, render_template, g, redirect, Response, make_response
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
@@ -38,30 +38,44 @@ def teardown_request(exception):
     pass
 
 
-loggedin = false
-userid = ''
-
 @app.route('/test1/', methods=["POST", "GET"])
 def test1():
-  loggedin = true
-  userid = request.form['userid']
-  print userid
+  if not request.cookies.get('userid'):
+    userid = request.form['userid']
+    username = request.form['username']
+    q = "SELECT * FROM defaultuser WHERE id=%s"
+    cursor = g.conn.execute(q, (int(userid)))
+    exists = False
+    for result in cursor:
+      exists = True
+      break
+    if not exists:
+      q = "INSERT INTO defaultuser VALUES (%s, %s, %s)"
+      g.conn.execute(q, (int(userid), username, True))
+    response = make_response('')
+    response.set_cookie('userid', userid)
+    response.set_cookie('username', username)
+    return response
   return ''
 
 
 
 @app.route('/test2/', methods=["POST", "GET"])
 def test2():
-  loggedin = false
-  userid = null
-  return ''
+  if request.cookies.get('userid'):
+    response = make_response('')
+    response.set_cookies('userid', None)
+    response.set_cookies('username', None)
+  return response
 
 
 @app.route('/test3/', methods=["POST", "GET"])
 def test3():
-  loggedin = false
-  userid = null
-  return ''
+  if request.cookies.get('userid'):
+    response = make_response('')
+    response.set_cookies('userid', None)
+    response.set_cookies('username', None)
+  return response
 
 
 app.route('/animals/', methods=["POST", "GET"])
@@ -77,7 +91,6 @@ def animals():
   return render_template("animals.html", **context)
 
 @app.route('/', methods=["POST", "GET"])
-<<<<<<< HEAD
 def index():  
   cursor = g.conn.execute("SELECT distinct name FROM category")
   names = []
@@ -86,32 +99,34 @@ def index():
   cursor.close()
   context=dict(data=names)
   return render_template("menu.html", **context)
-=======
 
 @app.route('/RonasTest', methods=["POST", "GET"])
 def ronasTest():
 	mydict = {}
-	"""mydict["memetweet_name"] = "Rona Wo"
-	mydict["memetweet_title"] = "Test Puppy Image"
-	mydict["memetweet_image"] = "https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcRSeispWpEabZbYn7fIE74Bmm71pKWXvf1tJElobLkiEpl4sx35njAwamIx"
-	mydict["comment_name"] = "It's Rona Again";
-	mydict["comment_content"] = "Ronas test comment";"""
 	mydict["all_memetweet_id"] = "1"
 	return render_template("memetweet.html", **mydict)
 
 @app.route('/like/', methods=["POST"])
 def like():
-	memeid = request.form['memeId']
-	#q = "INSERT INTO upvotes Values (%s, %s);" 
-	#g.conn.execute(q, (userid, memeid))
-	return ""
+  if not request.cookies.get('userid'):
+    return "You must be logged in to do that!"
+  memeid = request.form['memeId']
+  print memeid
+  userid = request.cookies.get('userid')
+  print userid
+  q = "INSERT INTO upvotes VALUES (%s, %s);" 
+  g.conn.execute(q, (int(userid), int(memeid)))
+  return ""
 
-@app.route('/like/', methods=["POST"])
-def like():
-	memeid = request.form['memeId']
-	#q = "DELETE FROM upvotes WHERE userid=%s AND memeid=%s;" 
-	#g.conn.execute(q, (userid, memeid))
-	return ""
+@app.route('/unlike/', methods=["POST"])
+def unlike():
+  if not request.cookies.get('userid'):
+    return "You must be logged in to do that!"
+  memeid = request.form['memeId']
+  userid = request.cookies.get('userid')
+  q = "DELETE FROM upvotes WHERE userid=%s AND memeid=%s;" 
+  g.conn.execute(q, (int(userid), int(memeid)))
+  return ""
 
 if __name__ == "__main__":
   import click
@@ -136,7 +151,7 @@ if __name__ == "__main__":
 
     HOST, PORT = host, port
     print "running on %s:%d" % (HOST, PORT)
-    app.run(host=HOST, port=PORT, debug=debug, threaded=threaded)
+    app.run(host=HOST, port=PORT, debug=True, threaded=threaded)
 
 
   run()

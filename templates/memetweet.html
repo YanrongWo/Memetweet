@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'menu.html' %}
 
 {% block links %}
 	<link rel='stylesheet' href='{{ url_for("static", filename="memetweet.css") }}'>
@@ -6,66 +6,7 @@
 
 {% block memetweet %}
 <div class='all_memetweets' id='{{all_memetweet_id}}'>
-<!-- 
-	<div class='memetweet_container' id='meme{{memetweet_id}}'>
-		<div class='memetweet_person' id='person{{person_id}}'>
-			<p class='memetweet_name'> {{memetweet_name}} </p>
-			<button class='heart heart_full'> <span class='glyphicon glyphicon-heart' aria-hidden='true'></span> </button>
-			<button class='heart heart_empty'> <span class='glyphicon glyphicon-heart-empty' aria-hidden='true'></span> </button>
-		</div>
-		<div class='memetweet_content'>
-			<p> {{memetweet_title}} </p>
-			<img src='{{memetweet_image}}' class='memetweet_image'/>
-		</div>
-		<div class='panel-group' id='accordion' role='tablist' aria-multiselectable='true'>
-		  <div class='panel panel-default'>
-		    <div class='panel-heading' role='tab' id='headingOne'>
-		      <h4 class='panel-title'>
-		        <a role='button' data-toggle='collapse' data-parent='#accordion' href='#collapseOne' aria-expanded='true' aria-controls='collapseOne'>
-		          <p>View Comments</p>
-		        </a>
-		        <button type='button' class='btn btn-primary' data-toggle='modal' data-target='#myModal'>
-  					Add Comment
-				</button>
-		      </h4>
-		    </div>
-		    <div id='collapseOne' class='panel-collapse collapse' role='tabpanel' aria-labelledby='headingOne'>
-		     	<div class='panel-body'>
-		    		<div class='comment_container'>
-		    			<div class='comment_person'>
-		    				<p class='comment_name'> {{comment_name}} </p>
-		    			</div>
-		    			<div class='comment_content'>
-		    				<p> {{comment_content}}</p>
-		    			</div>
-		    		</div> 
-		      	</div>
-		    </div>
-		  </div>
-		</div>
-		<div class='modal fade' id='myModal' tabindex='-1' role='dialog' aria-labelledby='myModalLabel'>
-		  <div class='modal-dialog' role='document'>
-		    <div class='modal-content'>
-		      <div class='modal-header'>
-		        <button type='button' class='close' data-dismiss='modal' aria-label='Close'><span aria-hidden='true'>&times;</span></button>
-		        <h4 class='modal-title' id='myModalLabel'>Your Comment</h4>
-		      </div>
-		      <div class='modal-body'>
-		      		<form role='form'>
-						<div class='form-group'>
-						    <input type='textarea' class='form-control' id='new_comment'>
-						</div>
-						<button type='submit' class='comment_submit btn btn-default'>Submit</button>
-					</form>
-		      </div>
-		      <div class='modal-footer'>
-		        <button type='button' class='btn btn-default' data-dismiss='modal'>Close</button>
-		      </div>
-		    </div>
-		  </div>
-		</div>
-	</div>
--->
+
 </div>
 <script>
 	function addMemetweet(memetweet_id, memetweet_name, memetweet_title, memetweet_image, person_id, divToAppend){
@@ -151,27 +92,43 @@
 	addComment("1", "Rona Again", "This is my super interesting comment", "1");
 
 	function like(element){
-		var heart_full = $(getMemeContainer(element)).find(".heart_full")[0];
-		$(heart_full).css('display', 'inline');
-		$(element).css('display', 'none');	
 		$.ajax({
         	method: "POST",
         	url: "/like/",
-        	data: { memeId: getMemeId(element) } 
+        	data: { memeId: getMemeId(element) },
+        	success: function(data){
+        				if (!data == ""){
+            				alert(data);
+            			}
+            			else
+            			{
+    						var heart_full = $(getMemeContainer(element)).find(".heart_full")[0];
+							$(heart_full).css('display', 'inline');
+							$(element).css('display', 'none');	
+            			}
+        	}  
       	});
 	}
 
 	function unlike(element){
-		var heart_empty = $(getMemeContainer(element)).find(".heart_empty")[0];
-		$(heart_empty).css('display', 'inline');
-		$(element).css('display', 'none');	
+
 		$.ajax({
         	method: "POST",
         	url: "/unlike/",
-        	data: { memeId: getMemeId(element) } 
+        	data: { memeId: getMemeId(element) },
+        	success: function(data){
+        				if (!data == ""){
+            				alert(data);
+            			}
+            			else{
+							var heart_empty = $(getMemeContainer(element)).find(".heart_empty")[0];
+							$(heart_empty).css('display', 'inline');
+							$(element).css('display', 'none');	
+            			}
+        	}  
       	});
 	}
-	
+
 	function getMemeId(element)
 	{
 		var memeId = $(getMemeContainer(element)).attr('id');
