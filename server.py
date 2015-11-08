@@ -64,7 +64,7 @@ def test3():
   return ''
 
 
-app.route('/animals/', methods=["POST", "GET"])
+@app.route('/animals/', methods=["POST", "GET"])
 def animals():
   
   cursor = g.conn.execute("SELECT distinct name FROM category")
@@ -72,12 +72,124 @@ def animals():
   for result in cursor:
     names.append(result['name'])
   cursor.close()
-  context=dict(data=names)
-  
+  context=dict(data=names)  
   return render_template("animals.html", **context)
 
+
+
+@app.route('/movie/', methods=["POST", "GET"])
+def movie():
+  
+  cursor = g.conn.execute("SELECT distinct name FROM category")
+  names = []
+  for result in cursor:
+    names.append(result['name'])
+  cursor.close()
+  context=dict(data=names)  
+  return render_template("movie.html", **context)
+
+
+@app.route('/news/', methods=["POST", "GET"])
+def news():
+  
+  cursor = g.conn.execute("SELECT distinct name FROM category")
+  names = []
+  for result in cursor:
+    names.append(result['name'])
+  cursor.close()
+  context=dict(data=names)  
+  return render_template("news.html", **context)
+
+
+@app.route('/advice/', methods=["POST", "GET"])
+def advice():
+  
+  cursor = g.conn.execute("SELECT distinct name FROM category")
+  names = []
+  for result in cursor:
+    names.append(result['name'])
+  cursor.close()
+  context=dict(data=names)  
+  return render_template("advice.html", **context)
+
+
+@app.route('/games/', methods=["POST", "GET"])
+def games():
+  
+  cursor = g.conn.execute("SELECT distinct name FROM category")
+  names = []
+  for result in cursor:
+    names.append(result['name'])
+  cursor.close()
+  context=dict(data=names)  
+  return render_template("games.html", **context)
+
+
+@app.route('/rage/', methods=["POST", "GET"])
+def rage():
+  
+  cursor = g.conn.execute("SELECT distinct name FROM category")
+  names = []
+  for result in cursor:
+    names.append(result['name'])
+  cursor.close()
+  context=dict(data=names)  
+  return render_template("rage.html", **context)
+
+
+@app.route('/tv/', methods=["POST", "GET"])
+def tv():
+  
+  cursor = g.conn.execute("SELECT distinct name FROM category")
+  names = []
+  for result in cursor:
+    names.append(result['name'])
+  cursor.close()
+  context=dict(data=names)  
+  return render_template("tv.html", **context)
+
+
+@app.route('/sports/', methods=["POST", "GET"])
+def sports():
+  
+  cursor = g.conn.execute("SELECT distinct name FROM category")
+  names = []
+  for result in cursor:
+    names.append(result['name'])
+  cursor.close()
+  context=dict(data=names)  
+  return render_template("sports.html", **context)
+
+
+@app.route('/food/', methods=["POST", "GET"])
+def food():
+  
+  cursor = g.conn.execute("SELECT distinct name FROM category")
+  names = []
+  for result in cursor:
+    names.append(result['name'])
+  cursor.close()
+  context=dict(data=names)  
+  return render_template("food.html", **context)
+
+
+@app.route('/fail/', methods=["POST", "GET"])
+def fail():
+  
+  cursor = g.conn.execute("SELECT distinct name FROM category")
+  names = []
+  for result in cursor:
+    names.append(result['name'])
+  cursor.close()
+  context=dict(data=names)  
+  return render_template("fail.html", **context)
+
+
+
+
+
 @app.route('/', methods=["POST", "GET"])
-<<<<<<< HEAD
+
 def index():  
   cursor = g.conn.execute("SELECT distinct name FROM category")
   names = []
@@ -86,7 +198,7 @@ def index():
   cursor.close()
   context=dict(data=names)
   return render_template("menu.html", **context)
-=======
+
 
 if __name__ == "__main__":
   import click
