@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+
+{% block links %}
+	<link rel='stylesheet' href='{{ url_for("static", filename="memetweet.css") }}'>
+{% endblock %}
+
+{% block memetweet %}
+<div class='all_memetweets' id='{{all_memetweet_id}}'>
+<!-- 
+	<div class='memetweet_container' id='meme{{memetweet_id}}'>
+		<div class='memetweet_person' id='person{{person_id}}'>
+			<p class='memetweet_name'> {{memetweet_name}} </p>
+			<button class='heart heart_full'> <span class='glyphicon glyphicon-heart' aria-hidden='true'></span> </button>
+			<button class='heart heart_empty'> <span class='glyphicon glyphicon-heart-empty' aria-hidden='true'></span> </button>
+		</div>
+		<div class='memetweet_content'>
+			<p> {{memetweet_title}} </p>
+			<img src='{{memetweet_image}}' class='memetweet_image'/>
+		</div>
+		<div class='panel-group' id='accordion' role='tablist' aria-multiselectable='true'>
+		  <div class='panel panel-default'>
+		    <div class='panel-heading' role='tab' id='headingOne'>
+		      <h4 class='panel-title'>
+		        <a role='button' data-toggle='collapse' data-parent='#accordion' href='#collapseOne' aria-expanded='true' aria-controls='collapseOne'>
+		          <p>View Comments</p>
+		        </a>
+		        <button type='button' class='btn btn-primary' data-toggle='modal' data-target='#myModal'>
+  					Add Comment
+				</button>
+		      </h4>
+		    </div>
+		    <div id='collapseOne' class='panel-collapse collapse' role='tabpanel' aria-labelledby='headingOne'>
+		     	<div class='panel-body'>
+		    		<div class='comment_container'>
+		    			<div class='comment_person'>
+		    				<p class='comment_name'> {{comment_name}} </p>
+		    			</div>
+		    			<div class='comment_content'>
+		    				<p> {{comment_content}}</p>
+		    			</div>
+		    		</div> 
+		      	</div>
+		    </div>
+		  </div>
+		</div>
+		<div class='modal fade' id='myModal' tabindex='-1' role='dialog' aria-labelledby='myModalLabel'>
+		  <div class='modal-dialog' role='document'>
+		    <div class='modal-content'>
+		      <div class='modal-header'>
+		        <button type='button' class='close' data-dismiss='modal' aria-label='Close'><span aria-hidden='true'>&times;</span></button>
+		        <h4 class='modal-title' id='myModalLabel'>Your Comment</h4>
+		      </div>
+		      <div class='modal-body'>
+		      		<form role='form'>
+						<div class='form-group'>
+						    <input type='textarea' class='form-control' id='new_comment'>
+						</div>
+						<button type='submit' class='comment_submit btn btn-default'>Submit</button>
+					</form>
+		      </div>
+		      <div class='modal-footer'>
+		        <button type='button' class='btn btn-default' data-dismiss='modal'>Close</button>
+		      </div>
+		    </div>
+		  </div>
+		</div>
+	</div>
+-->
+</div>
+<script>
+	function addMemetweet(memetweet_id, memetweet_name, memetweet_title, memetweet_image, person_id, divToAppend){
+		toAddHtml = "<div class='memetweet_container' id='meme";
+		toAddHtml += memetweet_id + "'>" + 
+						"<div class='memetweet_person'>" +
+							"<p class='memetweet_name' id='person";
+		toAddHtml += person_id + "'>";
+		toAddHtml += memetweet_name;
+		toAddHtml += 		"</p>" + 
+							"<button class='heart heart_full'> <span class='glyphicon glyphicon-heart' aria-hidden='true'></span> </button>" +
+							"<button class='heart heart_empty'> <span class='glyphicon glyphicon-heart-empty' aria-hidden='true'></span> </button>" +
+						"</div>" +
+						"<div class='memetweet_content'>" +
+							"<p>";
+		toAddHtml += memetweet_title;
+		toAddHtml += "		</p>" +
+							"<img src='";
+		toAddHtml += memetweet_image;
+		toAddHtml += "' class='memetweet_image'/>" +
+						"</div>" +
+						"<div class='panel-group' id='accordion' role='tablist' aria-multiselectable='true'>" +
+		  					"<div class='panel panel-default'>" +
+		    					"<div class='panel-heading' role='tab' id='headingOne'>" +
+		     						"<h4 class='panel-title'>" +
+		        						"<a role='button' data-toggle='collapse' data-parent='#accordion' href='#collapseOne' aria-expanded='true' aria-controls='collapseOne'>" +
+		          							"<p class='view_comments'>View Comments</p>" +
+		        						"</a>" +
+		        						"<button type='button' class='btn btn-primary add_comment' data-toggle='modal' data-target='#myModal'>" +
+						  					"Add Comment" +
+										"</button>" +
+		      						"</h4>" +
+		    					"</div>" +
+		    					"<div id='collapseOne' class='panel-collapse collapse' role='tabpanel' aria-labelledby='headingOne'>" +
+		      						"<div class='panel-body'>" +
+		        						"<div class='modal fade' id='myModal' tabindex='-1' role='dialog' aria-labelledby='myModalLabel'>" +
+										 	"<div class='modal-dialog' role='document'>" +
+										    "<div class='modal-content'>" +
+										      "<div class='modal-header'>" +
+										        "<button type='button' class='close' data-dismiss='modal' aria-label='Close'><span aria-hidden='true'>&times;</span></button>" +
+										        "<h4 class='modal-title' id='myModalLabel'>Your Comment</h4>" +
+										      "</div>" +
+										      "<div class='modal-body'>" +
+										      		"<form role='form'>" +
+														"<div class='form-group'>" +
+														    "<input type='textarea' class='form-control' id='new_comment'>" +
+														"</div>" +
+														"<button type='submit' class='comment_submit btn btn-default'>Submit</button>" +
+													"</form>" +
+										      "</div>" +
+										      "<div class='modal-footer'>" +
+										        "<button type='button' class='btn btn-default' data-dismiss='modal'>Close</button>" +
+										      "</div>" +
+										    "</div>" +
+										  "</div>" +
+										"</div>" +
+		      						"</div>" +
+		    					"</div>" +
+		  					"</div>" +
+						"</div>" +
+					"</div>";
+		var divOfInterest = document.getElementById(divToAppend);
+		divOfInterest.innerHTML += toAddHtml;
+	}
+
+	addMemetweet('1', 'Ronas Wo', 'Some Meme Title', 'https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcRSeispWpEabZbYn7fIE74Bmm71pKWXvf1tJElobLkiEpl4sx35njAwamIx', '1', '1');
+	function addComment(memetweet_id, comment_name, comment_content, divToAppend){
+		toAddHtml = "<div class='comment_container'>" +
+		    			"<div class='comment_person'>" +
+		    				"<p class='comment_name'>";
+		toAddHtml += comment_name;
+		toAddHtml += "</p>" +
+		    			"</div>" +
+		    			"<div class='comment_content'>" +
+		    				"<p>"; 
+		toAddHtml += comment_content;
+		toAddHtml += "		</p>"
+		    			"</div>" +
+		    		"</div>";
+		var memetweet = $("#" + divToAppend + " #meme" + memetweet_id + " .panel-body").append(toAddHtml);
+	}
+	addComment("1", "Rona Again", "This is my super interesting comment", "1");
+</script>
+{% endblock %}

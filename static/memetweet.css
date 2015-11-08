@@ -1,0 +1,85 @@
+.memetweet_container{
+	margin: 100px;
+	box-shadow: 0px 0px 10px #ccc;
+	width: 50%;
+	background-color: #fff;
+    border-color: #ddd;
+    border-width: 1px;
+    border-radius: 4px 4px 0 0;
+}
+
+.memetweet_person{
+	padding: 10px 25px 10px 25px;
+	border:1px solid #ddd;
+	border-radius: 4px 4px 0 0;
+	overflow: auto;
+}
+
+.memetweet_content{
+	border:1px solid #ddd;
+	padding: 25px;
+	border-radius: 4px 4px 0 0;
+}
+
+.memetweet_image{
+	width: 100%;
+}
+.memetweet_name{
+	display: inline-block;
+	font-size: 25px;
+	top: 5px;
+	position: relative;
+}
+.heart{
+	position: relative;
+	float: right;
+	display: inline-block;
+	padding: 10px;
+	background-color: white;
+	border: 1px #ccc solid;
+	border-radius: 4px;
+}
+
+.heart:hover{
+	background-color: #ccc;
+}
+
+.comment_content{
+	border:1px solid #ddd;
+	border-radius: 4px 4px 0 0;
+	padding: 15px;
+}
+
+.comment_person{
+	padding: 15px;
+}
+.comment_container{
+	border:1px solid #ddd;
+	border-radius: 4px 4px 0 0;
+	box-shadow: 0px 0px 10px #ccc;
+}
+
+p{
+	margin: 2px;
+}
+
+.comment_submit{
+	position:absolute;
+	top: 95px;
+	left: 440px;	
+}
+
+.add_comment{
+	display: inline;
+	float: right;
+}
+
+.panel-heading{
+	overflow: auto;
+}
+
+.view_comments{
+	display: inline;
+	position: relative;
+	top: 5px;
+}

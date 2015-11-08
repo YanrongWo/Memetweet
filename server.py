@@ -77,6 +77,7 @@ def animals():
   return render_template("animals.html", **context)
 
 @app.route('/', methods=["POST", "GET"])
+<<<<<<< HEAD
 def index():  
   cursor = g.conn.execute("SELECT distinct name FROM category")
   names = []
@@ -85,6 +86,7 @@ def index():
   cursor.close()
   context=dict(data=names)
   return render_template("menu.html", **context)
+=======
 
 if __name__ == "__main__":
   import click
