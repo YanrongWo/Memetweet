@@ -45,10 +45,6 @@
 	height: 40px;
 }
 
-.heart_full{
-	display: none;
-}
-
 .retweet{
 	position: relative;
 	float: right;
@@ -83,16 +79,11 @@
 	border:1px solid #ddd;
 	border-radius: 4px 4px 0 0;
 	box-shadow: 0px 0px 10px #ccc;
+	margin: 1vw;
 }
 
 p{
 	margin: 2px;
-}
-
-.comment_submit{
-	position:absolute;
-	top: 95px;
-	left: 440px;	
 }
 
 .add_comment{
@@ -108,4 +99,10 @@ p{
 	display: inline;
 	position: relative;
 	top: 10px;
+}
+
+textarea{
+	border-radius: 4px;
+	width: 100%;
+	margin: 0 auto;	
 }
