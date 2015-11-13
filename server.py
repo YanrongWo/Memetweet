@@ -90,6 +90,32 @@ def index():
     names.append(result['name'])
   cursor.close()
   context=dict(data=names)
+  memes = []
+  if request.cookies.get('userid'):
+    q = "select meme.id, meme.title, meme.imageurl, meme.userid, defaultuser.username " + \
+        "from " + \
+        "(select id, title, imageurl, userid " + \
+        "from memetweet " + \
+        "where id in " + \
+          "(select followeeid " + \
+          "from follows " + \
+          "where followerid=%s)) as meme, " + \
+        "defaultuser " + \
+      "where defaultuser.id = meme.userid;"
+    cursor = g.conn.execute(q, (request.cookies.get('userid')))
+    context["sections"] = ["followeesPosts"]
+    #t1.memeid, t1.count as retweets, t2.userid, t3.username, t4.count as upvotes ,t5.imageurl, t5.title
+    for c in cursor:
+      meme = {}
+      meme['memeid'] = c['id']
+      meme['userid'] = c['userid']
+      meme['username'] = c['username']
+      meme['imageurl'] = c['imageurl'].strip()
+      meme['title'] = c['title'].strip()
+      meme['section'] = "followeesPosts"
+      memes.append(meme)
+
+
   return render_template("menu.html", **context)
 
 @app.route('/categories/<categoryname>/', methods=["POST", "GET"])
@@ -112,11 +138,7 @@ def category(categoryname):
       "as t1, " + \
       "(select * " + \
         "from memetweet " + \
-        "where memetweet.id in( " + \
-          "select bt.memeid " + \
-            "from belongsto as bt " + \
-            "where bt.categoryname = %s " + \
-          ") " + \
+        "where memetweet.categoryname = %s" + \
         ") " + \
       "as t2, " + \
       "(select * " + \
@@ -146,7 +168,7 @@ def category(categoryname):
     meme['userid'] = c['userid']
     meme['username'] = c['username']
     meme['upvotes'] = c['upvotes']
-    meme['imageurl'] = c['imageurl']
+    meme['imageurl'] = c['imageurl'].strip()
     meme['title'] = c['title'].strip()
     meme['section'] = categoryname
     print meme 
@@ -268,17 +290,18 @@ def create_comment(memetweet_id, comment_name, comment_person_id, comment_conten
 def newMemetweet():
   if not request.cookies.get('userid'):
     return "You need to be logged in to do that!"
-  title = request.form['title']
-  imageurl = request.form['imageurl']
+  title = request.form['title'].strip()
+  imageurl = request.form['imageurl'].strip()
   userid = request.cookies.get('userid')
+  category = request.form['category']
   time = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
   locked = False
   markasinappropriate = False
-  q = "INSERT INTO memetweet (title, imageurl, timeUploaded, userid, locked, markasinappropriate) " + \
-      "VALUES (%s, %s, %s, %s, %s, %s);"
-  g.conn.execute(q, (title, imageurl, time, userid, locked, markasinappropriate))
+  q = "INSERT INTO memetweet (title, imageurl, timeUploaded, userid, locked, markasinappropriate, categoryname) " + \
+      "VALUES (%s, %s, %s, %s, %s, %s, %s);"
+  g.conn.execute(q, (title, imageurl, time, userid, locked, markasinappropriate, category))
   return ""
-  
+
 if __name__ == "__main__":
   import click
 
