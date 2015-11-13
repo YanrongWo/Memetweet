@@ -2,6 +2,7 @@ import os
 from sqlalchemy import *
 from sqlalchemy.pool import NullPool
 from flask import Flask, request, render_template, g, redirect, Response, make_response
+import datetime
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
@@ -229,7 +230,7 @@ def like():
   userid = request.cookies.get('userid')
   print userid
   q = "INSERT INTO upvotes VALUES (%s, %s);" 
-  g.conn.execute(q, (int(userid), int(memeid)))
+  g.conn.execute(q, (userid, memeid))
   return ""
 
 @app.route('/unlike/', methods=["POST"])
@@ -239,9 +240,73 @@ def unlike():
   memeid = request.form['memeId']
   userid = request.cookies.get('userid')
   q = "DELETE FROM upvotes WHERE userid=%s AND memeid=%s;" 
-  g.conn.execute(q, (int(userid), int(memeid)))
+  g.conn.execute(q, (userid, memeid))
   return ""
 
+@app.route('/retweet/', methods=["POST"])
+def retweet():
+  if not request.cookies.get('userid'):
+    return "You must be logged in to do that!"
+  memeid = request.form['memeId']
+  userid = request.cookies.get('userid')
+  q = "INSERT INTO retweet VALUES(%s, %s);"
+  g.conn.execute(q, (userid, memeid))
+  return ""
+
+@app.route('/getComments/', methods=["POST"])
+def get_comment():
+  memeid = request.form['memeId']
+  q = "SELECT c.userid, c.commentText, c.timeUploaded, u.username " + \
+      "FROM comment c, defaultuser u " + \
+      "WHERE c.memeid = %s and c.userid = u.id " + \
+      "ORDER BY c.timeUploaded DESC "
+  cursor = g.conn.execute(q, (memeid))
+  result = ""
+  for c in cursor:
+    result += create_comment(memeid, c['username'], c['userid'], c['commenttext'])
+  return result
+
+@app.route('/addComment/', methods=["POST"])
+def add_comment():
+  if not request.cookies.get('userid'):
+      return "You must be logged in to do that!"
+  memeid = request.form['memeId']
+  comment = request.form['comment']
+  userid = request.cookies.get('userid')
+  username = request.cookies.get('username')
+  time = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+  q = "INSERT INTO comment (memeid, userid, commentText, timeUploaded) VALUES(%s, %s, %s, %s)"
+  g.conn.execute(q, (memeid, userid, comment, time))
+  return ""
+
+@app.route('/isLiked/', methods=["POST"])
+def is_liked():
+  if not request.cookies.get('userid'):
+      return "false"
+  memeid = request.form['memeId']
+  userid = request.cookies.get('userid')
+  q = "SELECT * FROM upvotes WHERE userid=%s and memeid=%s"
+  cursor = g.conn.execute(q, (userid, memeid))
+  isLiked = "false"
+  for c in cursor:
+    isLiked = "true"
+  return isLiked
+
+def create_comment(memetweet_id, comment_name, comment_person_id, comment_content):
+  toAddHtml = "<div class='comment_container'>" + \
+            "<div class='comment_person'>" + \
+              "<p class='comment_name person"
+  toAddHtml += str(comment_person_id) + "'>"
+  toAddHtml += comment_name
+  toAddHtml += "</p>" + \
+            "</div>" + \
+            "<div class='comment_content'>" + \
+              "<p>"
+  toAddHtml += comment_content
+  toAddHtml += "    </p>" + \
+            "</div>" + \
+          "</div>"
+  return toAddHtml
 
 if __name__ == "__main__":
   import click
