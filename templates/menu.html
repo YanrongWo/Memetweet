@@ -1,6 +1,8 @@
 {% extends "base.html" %}
 
-{% block links %}{% endblock %}
+{% block links %}
+  <link rel='stylesheet' href='{{ url_for("static", filename="menu.css") }}'>
+{% endblock %}
 
 {% block menu %}
 <div id="fb-root"></div>
@@ -19,8 +21,6 @@
       testAPI(response.authResponse.userID);
     } else if (response.status === 'not_authorized') {
       // The person is logged into Facebook, but not your app.
-      document.getElementById('status').innerHTML = 'Please log ' +
-        'into this app.';
       $.ajax({
         	method : "POST",
         	url: "/test2/",
@@ -29,8 +29,6 @@
     } else {
       // The person is not logged into Facebook, so we're not sure if
       // they are logged into this app or not.
-      document.getElementById('status').innerHTML = 'Please log ' +
-        'into Facebook.';
       document.getElementById('homebutton').style.display = "none";
       $.ajax({
         	method : "POST",
@@ -90,9 +88,6 @@
   function testAPI(userid) {
     console.log('Welcome!  Fetching your information.... ');
     FB.api('/me', function(response) {
-      console.log('Successful login for: ' + response.name);
-      document.getElementById('status').innerHTML =
-        'Thanks for logging in, ' + response.name + '!';
       document.getElementById('homebutton').style.display = "block";
       document.getElementById('homebutton').href = "/users/"+response.id;
       document.getElementById('userpage').innerHTML=response.name;
@@ -137,22 +132,71 @@
 			  {% endfor %}
             </ul>
             <ul class="nav navbar-nav navbar-right">
+              <li>
+                <button id='plus' type="button" data-toggle="modal" data-target="#myModal">
+                  <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                </button>                  
+              </li>
             	<li>
-				  <a id = "homebutton" href= "" class="btn btn-default btn-lg" aria-label="Center Align">
+				  <a id = "homebutton" href= "" class="" aria-label="Center Align">
 				    <div id = "userpage"></div> 
 				  </a>
                 </li>
             	<li>
-            		<div class="fb-login-button" data-max-rows="1" data-size="large" data-show-faces="false" data-auto-logout-link="true" scope="public_profile,email" onlogin="checkLoginState();" ></div>
-
+            		<div id='fb_button' class="fb-login-button" data-max-rows="1" data-size="large" data-show-faces="false" data-auto-logout-link="true" scope="public_profile,email" onlogin="checkLoginState();" ></div>
 				</li>           
 		    </ul>
           </div><!--/.nav-collapse -->
         </div><!--/.container-fluid -->
 </nav>
 </div>
-<div id="status">
 
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">New Memetweet</h4>
+      </div>
+      <div class="modal-body">
+        <p> Title (140 characters max.) </p>
+        <textarea maxlength="140" id="newTitle">
+
+        </textarea>
+        <p> Image Url </p>
+        <textarea id="newImageUrl">
+
+        </textarea>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" onclick="newMemetweet()"> New Meme Tweet</button>
+      </div>
+    </div>
+  </div>
 </div>
-{% block memetweet %}{% endblock %}
+
+<script>
+  function newMemetweet(){
+    $("#myModal").modal('toggle');
+    var title = $("#newTitle").val();
+    var imageUrl = $("#newImageUrl").val();
+    $.ajax({
+          method: "POST",
+          url: "/newMemetweet/",
+          data: { 
+            title:  title,
+            imageurl: imageUrl 
+          },
+          success: function(data){
+            if (data != ""){
+              alert(data);
+            }
+            else {
+              alert("Meme Tweet posted!")         
+            }
+          }  
+        });
+  }
+</script>
 {% endblock %}

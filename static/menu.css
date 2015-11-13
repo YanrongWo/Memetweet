@@ -1,0 +1,18 @@
+#fb_button {
+	margin: 10px;
+}
+
+#homebutton:hover {
+	background-image: linear-gradient(to bottom,#dbdbdb 0,#e2e2e2 100%);
+}
+
+#plus:hover{
+	background-image: linear-gradient(to bottom,#dbdbdb 0,#e2e2e2 100%);	
+	cursor: pointer;
+}
+
+#plus{
+	background: transparent;
+	border: none;
+	padding: 16px;
+}
