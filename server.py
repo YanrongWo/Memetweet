@@ -100,8 +100,63 @@ def category(categoryname):
     names.append(result['name'])
   cursor.close()
   context = dict(data=names)
-  
   return render_template("categories.html", **context)
+
+  q = "select t1.id, t1.count as retweets, t2.userid, t3.username, t4.count as upvotes ,t5.imageurl, t5.title " + \
+      "from( " + \
+        "select id,count(retweet.memeid) " + \
+        "from memetweet "  + \
+        "left outer join retweet " + \
+        "on memetweet.id = retweet.memeid " + \
+        "group by id " + \
+        "order by id " + \
+      ") " + \
+      "as t1, " + \
+      "(select * " + \
+        "from memetweet " + \
+        "where memetweet.id in( " + \
+          "select bt.memeid " + \
+            "from belongsto as bt " + \
+            "where bt.categoryname = %s " + \
+          ") " + \
+        ") " + \
+      "as t2, " + \
+      "(select * " + \
+      "from defaultuser) " + \
+      "as t3, " + \
+      "(select id,count(upvotes.memeid) " + \
+        "from memetweet left outer join upvotes " + \
+        "on memetweet.id = upvotes.memeid  " + \
+        "group by id " + \
+        "order by id " + \
+      ") " + \
+      "as t4, " + \
+      "(select * " + \
+      "from memetweet) as t5 " + \
+    "where t1.id = t2.id " + \
+    "and t4.id = t2.id " + \
+    "and t2.userid = t3.id " + \
+    "and t5.id = t2.id " + \
+    "order by t1.count+t4.count desc;"
+  cursor = g.conn.execute(q, (categoryname))
+  memes = []
+  #t1.memeid, t1.count as retweets, t2.userid, t3.username, t4.count as upvotes ,t5.imageurl, t5.title
+  for c in cursor:
+    meme = {}
+    meme['memeid'] = c['id']
+    meme['retweets'] = c['retweets']
+    meme['userid'] = c['userid']
+    meme['username'] = c['username']
+    meme['upvotes'] = c['upvotes']
+    meme['imageurl'] = c['imageurl']
+    meme['title'] = c['title'].strip()
+    meme['section'] = categoryname
+    print meme 
+    memes.append(meme)
+  context['memes'] = memes
+  context["sections"] = [categoryname]
+  return render_template("memetweet.html", **context)
+
 
 @app.route('/users/<userid>/', methods = ["POST","GET"])
 def users(userid):
@@ -182,14 +237,14 @@ def users(userid):
 
 @app.route('/RonasTest', methods=["POST", "GET"])
 def ronasTest():
-	mydict = {}
-	"""mydict["memetweet_name"] = "Rona Wo"
-	mydict["memetweet_title"] = "Test Puppy Image"
-	mydict["memetweet_image"] = "https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcRSeispWpEabZbYn7fIE74Bmm71pKWXvf1tJElobLkiEpl4sx35njAwamIx"
-	mydict["comment_name"] = "It's Rona Again";
-	mydict["comment_content"] = "Ronas test comment";"""
-	mydict["all_memetweet_id"] = "1"
-	return render_template("memetweet.html", **mydict)
+  cursor = g.conn.execute("SELECT distinct name FROM category")
+  names = []
+  for result in cursor:
+    names.append(result['name'])
+  cursor.close()
+  context = dict(data=names)
+  context["all_memetweet_id"] = "1"
+  return render_template("memetweet.html", **context)
 
 @app.route('/like/', methods=["POST", "GET"])
 def like():
@@ -278,6 +333,21 @@ def create_comment(memetweet_id, comment_name, comment_person_id, comment_conten
           "</div>"
   return toAddHtml
 
+@app.route('/newMemetweet/', methods=["POST"])
+def newMemetweet():
+  if not request.cookies.get('userid'):
+    return "You need to be logged in to do that!"
+  title = request.form['title']
+  imageurl = request.form['imageurl']
+  userid = request.cookies.get('userid')
+  time = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+  locked = False
+  markasinappropriate = False
+  q = "INSERT INTO memetweet (title, imageurl, timeUploaded, userid, locked, markasinappropriate) " + \
+      "VALUES (%s, %s, %s, %s, %s, %s);"
+  g.conn.execute(q, (title, imageurl, time, userid, locked, markasinappropriate))
+  return ""
+  
 if __name__ == "__main__":
   import click
 

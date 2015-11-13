@@ -1,12 +1,12 @@
 {% extends 'menu.html' %}
 
 {% block links %}
+	{{super()}}
 	<link rel='stylesheet' href='{{ url_for("static", filename="memetweet.css") }}'>
 {% endblock %}
 
 {% block memetweet %}
-<div class='all_memetweets' id='{{all_memetweet_id}}'>
-
+<div id='content'>
 </div>
 <script>
 	function addMemetweet(memetweet_id, memetweet_name, memetweet_title, memetweet_image, person_id, divToAppend){
@@ -66,10 +66,10 @@
 								    "<div class='modal-content'>" +
 								      "<div class='modal-header'>" +
 								        "<button type='button' class='close' data-dismiss='modal' aria-label='Close'><span aria-hidden='true'>&times;</span></button>" +
-								        "<h4 class='modal-title' id='myModalLabel'>Your Comment</h4>" +
+								        "<h4 class='modal-title' id='myModalLabel'>Your Comment (140 characters max.)</h4>" +
 								      "</div>" +
 								      "<div class='modal-body'>" +
-											"<textarea class='new_comment'></textarea>" +
+											"<textarea class='new_comment' maxlength='140'></textarea>" +
 								      "</div>" +
 								      "<div class='modal-footer'>" +
 								      	"<button onclick='newComment(this)' class='comment_submit btn btn-default'>Submit</button>" +
@@ -85,11 +85,23 @@
       	});
 	}
 
+	function addMemetweetSection(all_memetweet_id){
+		var toAddHtml = "<div class='all_memetweets' id='" + all_memetweet_id + "'>";
+		toAddHtml += "<h1 class='title'>" + all_memetweet_id + "</p> </div>";
+		var content = document.getElementById('content');
+		content.innerHTML += toAddHtml;
+	}
+
 	var first_time = true;
 	$( document ).ready(function() {
 		if (first_time){
 			first_time = false;
-			addMemetweet('1', 'Ronas Wo', 'Some Meme Title','https://encrypted-tbn3.gstatic.	com/images?q=tbn:ANd9GcRSeispWpEabZbYn7fIE74Bmm71pKWXvf1tJElobLkiEpl4sx35njAwamIx', '1', '1');
+			{% for section in sections %}
+				addMemetweetSection("{{section}}");
+			{% endfor %}
+			{% for meme in memes %}
+			      addMemetweet("{{meme['memeid']}}", "{{meme['username']}}", "{{meme['title']}}","{{meme['imageurl']}}", "{{meme['userid']}}", "{{meme['section']}}");
+			{% endfor %}
 		}
 	});
 	
