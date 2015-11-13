@@ -202,9 +202,6 @@ def fail():
   return render_template("fail.html", **context)
 
 
-
-
-
 @app.route('/', methods=["POST", "GET"])
 def index():  
   cursor = g.conn.execute("SELECT distinct name FROM category")
