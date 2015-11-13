@@ -21,6 +21,10 @@
       testAPI(response.authResponse.userID);
     } else if (response.status === 'not_authorized') {
       // The person is logged into Facebook, but not your app.
+      document.getElementById('status').innerHTML = 'Please log ' +
+        'into this app.';
+      document.getElementById('homebutton').style.display = "none";
+
       $.ajax({
         	method : "POST",
         	url: "/test2/",
@@ -88,6 +92,9 @@
   function testAPI(userid) {
     console.log('Welcome!  Fetching your information.... ');
     FB.api('/me', function(response) {
+      console.log('Successful login for: ' + response.name);
+      /*document.getElementById('status').innerHTML =
+        'Thanks for logging in, ' + response.name + '!';*/
       document.getElementById('homebutton').style.display = "block";
       document.getElementById('homebutton').href = "/users/"+response.id;
       document.getElementById('userpage').innerHTML=response.name;
