@@ -4,6 +4,7 @@ from sqlalchemy.pool import NullPool
 from flask import Flask, request, render_template, g, redirect, Response, make_response
 import datetime
 
+
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
 
@@ -81,127 +82,6 @@ def test3():
   return ''
 
 
-@app.route('/animals/', methods=["POST", "GET"])
-def animals():
-  
-  cursor = g.conn.execute("SELECT distinct name FROM category")
-  names = []
-  for result in cursor:
-    names.append(result['name'])
-  cursor.close()
-  context=dict(data=names)  
-  return render_template("animals.html", **context)
-
-
-
-@app.route('/movie/', methods=["POST", "GET"])
-def movie():
-  
-  cursor = g.conn.execute("SELECT distinct name FROM category")
-  names = []
-  for result in cursor:
-    names.append(result['name'])
-  cursor.close()
-  context=dict(data=names)  
-  return render_template("movie.html", **context)
-
-
-@app.route('/news/', methods=["POST", "GET"])
-def news():
-  
-  cursor = g.conn.execute("SELECT distinct name FROM category")
-  names = []
-  for result in cursor:
-    names.append(result['name'])
-  cursor.close()
-  context=dict(data=names)  
-  return render_template("news.html", **context)
-
-
-@app.route('/advice/', methods=["POST", "GET"])
-def advice():
-  
-  cursor = g.conn.execute("SELECT distinct name FROM category")
-  names = []
-  for result in cursor:
-    names.append(result['name'])
-  cursor.close()
-  context=dict(data=names)  
-  return render_template("advice.html", **context)
-
-
-@app.route('/games/', methods=["POST", "GET"])
-def games():
-  
-  cursor = g.conn.execute("SELECT distinct name FROM category")
-  names = []
-  for result in cursor:
-    names.append(result['name'])
-  cursor.close()
-  context=dict(data=names)  
-  return render_template("games.html", **context)
-
-
-@app.route('/rage/', methods=["POST", "GET"])
-def rage():
-  
-  cursor = g.conn.execute("SELECT distinct name FROM category")
-  names = []
-  for result in cursor:
-    names.append(result['name'])
-  cursor.close()
-  context=dict(data=names)  
-  return render_template("rage.html", **context)
-
-
-@app.route('/tv/', methods=["POST", "GET"])
-def tv():
-  
-  cursor = g.conn.execute("SELECT distinct name FROM category")
-  names = []
-  for result in cursor:
-    names.append(result['name'])
-  cursor.close()
-  context=dict(data=names)  
-  return render_template("tv.html", **context)
-
-
-@app.route('/sports/', methods=["POST", "GET"])
-def sports():
-  
-  cursor = g.conn.execute("SELECT distinct name FROM category")
-  names = []
-  for result in cursor:
-    names.append(result['name'])
-  cursor.close()
-  context=dict(data=names)  
-  return render_template("sports.html", **context)
-
-
-@app.route('/food/', methods=["POST", "GET"])
-def food():
-  
-  cursor = g.conn.execute("SELECT distinct name FROM category")
-  names = []
-  for result in cursor:
-    names.append(result['name'])
-  cursor.close()
-  context=dict(data=names)  
-  return render_template("food.html", **context)
-
-
-@app.route('/fail/', methods=["POST", "GET"])
-def fail():
-  
-  cursor = g.conn.execute("SELECT distinct name FROM category")
-  names = []
-  for result in cursor:
-    names.append(result['name'])
-  cursor.close()
-  context=dict(data=names)  
-  return render_template("fail.html", **context)
-
-
 @app.route('/', methods=["POST", "GET"])
 def index():  
   cursor = g.conn.execute("SELECT distinct name FROM category")
@@ -212,9 +92,35 @@ def index():
   context=dict(data=names)
   return render_template("menu.html", **context)
 
+@app.route('/categories/<categoryname>/', methods=["POST", "GET"])
+def category(categoryname):
+  cursor = g.conn.execute("SELECT distinct name FROM category")
+  names = []
+  for result in cursor:
+    names.append(result['name'])
+  cursor.close()
+  context = dict(data=names)
+  return render_template("categories.html", **context)
+
+@app.route('/users/<username>/', methods = ["POST","GET"])
+def users(username):
+    cursor = g.conn.execute("SELECT distinct name FROM category")
+    names = []
+    for result in cursor:
+      names.append(result['name'])
+    cursor.close()
+    context = dict(data=names)
+    print request.path
+    return render_template("users.html", **context)
+
 @app.route('/RonasTest', methods=["POST", "GET"])
 def ronasTest():
 	mydict = {}
+	"""mydict["memetweet_name"] = "Rona Wo"
+	mydict["memetweet_title"] = "Test Puppy Image"
+	mydict["memetweet_image"] = "https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcRSeispWpEabZbYn7fIE74Bmm71pKWXvf1tJElobLkiEpl4sx35njAwamIx"
+	mydict["comment_name"] = "It's Rona Again";
+	mydict["comment_content"] = "Ronas test comment";"""
 	mydict["all_memetweet_id"] = "1"
 	return render_template("memetweet.html", **mydict)
 

@@ -15,7 +15,6 @@
         	url: "/isLiked/",
         	data: { memeId: memetweet_id },
         	success: function(isLiked){
-        		console.log(isLiked);
         		var hide = "style='display:none'";
 				toAddHtml = "<div class='memetweet_container' id='meme";
 				toAddHtml += memetweet_id + "'>" + 
@@ -86,7 +85,15 @@
       	});
 	}
 
-	addMemetweet('1', 'Ronas Wo', 'Some Meme Title','https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcRSeispWpEabZbYn7fIE74Bmm71pKWXvf1tJElobLkiEpl4sx35njAwamIx', '1', '1');
+	var first_time = true;
+	$( document ).ready(function() {
+		if (first_time){
+			first_time = false;
+			addMemetweet('1', 'Ronas Wo', 'Some Meme Title','https://encrypted-tbn3.gstatic.	com/images?q=tbn:ANd9GcRSeispWpEabZbYn7fIE74Bmm71pKWXvf1tJElobLkiEpl4sx35njAwamIx', '1', '1');
+		}
+	});
+	
+
 	function addComment(memetweet_id, comment_name, comment_person_id, comment_content, divToAppend){
 		toAddHtml = "<div class='comment_container'>" +
 		    			"<div class='comment_person'>" +
