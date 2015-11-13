@@ -63,7 +63,7 @@ def test3():
   userid = none
   return ''
 
-
+'''
 @app.route('/animals/', methods=["POST", "GET"])
 def animals():
   
@@ -184,8 +184,7 @@ def fail():
   context=dict(data=names)  
   return render_template("fail.html", **context)
 
-
-
+'''
 
 
 @app.route('/', methods=["POST", "GET"])
@@ -199,6 +198,26 @@ def index():
   context=dict(data=names)
   return render_template("menu.html", **context)
 
+@app.route('/categories/<categoryname>/', methods=["POST", "GET"])
+def category(categoryname):
+  cursor = g.conn.execute("SELECT distinct name FROM category")
+  names = []
+  for result in cursor:
+    names.append(result['name'])
+  cursor.close()
+  context = dict(data=names)
+  return render_template("categories.html", **context)
+
+@app.route('/users/<username>/', methods = ["POST","GET"])
+def users(username):
+    cursor = g.conn.execute("SELECT distinct name FROM category")
+    names = []
+    for result in cursor:
+      names.append(result['name'])
+    cursor.close()
+    context = dict(data=names)
+    print request.path
+    return render_template("users.html", **context)
 
 @app.route('/RonasTest', methods=["POST", "GET"])
 def ronasTest():
@@ -241,7 +260,7 @@ if __name__ == "__main__":
 
     HOST, PORT = host, port
     print "running on %s:%d" % (HOST, PORT)
-    app.run(host=HOST, port=PORT, debug=debug, threaded=threaded)
+    app.run(host=HOST, port=PORT, debug=True, threaded=threaded)
 
 
   run()
