@@ -65,7 +65,6 @@ def test3():
 
 
 @app.route('/', methods=["POST", "GET"])
-
 def index():  
   cursor = g.conn.execute("SELECT distinct name FROM category")
   names = []
@@ -83,6 +82,7 @@ def category(categoryname):
     names.append(result['name'])
   cursor.close()
   context = dict(data=names)
+  
   return render_template("categories.html", **context)
 
 @app.route('/users/<username>/', methods = ["POST","GET"])
