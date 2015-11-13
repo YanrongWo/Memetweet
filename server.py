@@ -100,7 +100,6 @@ def category(categoryname):
     names.append(result['name'])
   cursor.close()
   context = dict(data=names)
-  return render_template("categories.html", **context)
 
   q = "select t1.id, t1.count as retweets, t2.userid, t3.username, t4.count as upvotes ,t5.imageurl, t5.title " + \
       "from( " + \
