@@ -174,7 +174,7 @@
         	url: "/getComments/",
         	data: { memeId:  memeid },
         	success: function(data){
-    			$("#" + memeid + " #meme" + memeid + " .panel-body").html(data);
+    			$("#meme" + memeid + " .panel-body").html(data);
         	}  
       	});
 	}
@@ -197,7 +197,7 @@
     			}
     			else{
     				$("#collapse" + memeid).collapse('show');
-    				viewComments("#" + memeid + " .view_comments");
+    				viewComments("#meme" + memeid + " .view_comments");
     				
     			}
         	}  
