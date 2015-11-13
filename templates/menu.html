@@ -172,8 +172,14 @@
         </textarea>
         <p> Image Url </p>
         <textarea id="newImageUrl">
-
         </textarea>
+
+        <p> Category </p>
+        <select id='newCategory'>
+        {% for n in data %}
+        <option value={{n}}> {{n}} </option>
+        {% endfor %}
+        </select>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -188,12 +194,14 @@
     $("#myModal").modal('toggle');
     var title = $("#newTitle").val();
     var imageUrl = $("#newImageUrl").val();
+    var category = $("#newCategory").val();
     $.ajax({
           method: "POST",
           url: "/newMemetweet/",
           data: { 
             title:  title,
-            imageurl: imageUrl 
+            imageurl: imageUrl, 
+            category: category 
           },
           success: function(data){
             if (data != ""){
