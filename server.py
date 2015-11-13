@@ -103,14 +103,80 @@ def category(categoryname):
   
   return render_template("categories.html", **context)
 
-@app.route('/users/<username>/', methods = ["POST","GET"])
-def users(username):
+@app.route('/users/<userid>/', methods = ["POST","GET"])
+def users(userid):
     cursor = g.conn.execute("SELECT distinct name FROM category")
     names = []
     for result in cursor:
       names.append(result['name'])
     cursor.close()
-    context = dict(data=names)
+    q = "SELECT username from defaultuser where id = %s;"
+    cursor = g.conn.execute(q,(userid))
+    users = []
+    print (q,(userid))
+    for result in cursor:
+      users.append(result['username'])
+    cursor.close()
+
+    q = "select count(*) " + \
+      "from ( " + \
+              "select id " + \
+              "from memetweet " + \
+              "where userid = %s) as memes, " + \
+              "(select * " + \
+              "from retweet ) as retweets " + \
+      "where memes.id = retweets.memeid; "
+    
+    cursor = g.conn.execute(q,(userid))
+    retweets = []
+    print (q,(userid))
+    for result in cursor:
+      retweets.append(result['count'])
+    cursor.close()
+
+    q = "select count(*) " + \
+      "from ( " + \
+              "select id " + \
+              "from memetweet " + \
+              "where userid = %s) as memes, " + \
+              "(select * " + \
+              "from upvotes ) as upvotes " + \
+      "where memes.id = upvotes.memeid; "
+    
+    cursor = g.conn.execute(q,(userid))
+    upvotes = []
+    print (q,(userid))
+    for result in cursor:
+      upvotes.append(result['count'])
+    cursor.close()
+
+    q = "select t2.username " + \
+        "from ( " + \
+        "select followeeid from follows " + \
+        "where followerid = %s) as t1, " + \
+        "(select * from defaultuser) as t2 " + \
+        "where t1.followeeid = t2.id; "
+    cursor = g.conn.execute(q,(userid))
+    followees = []
+    for results in cursor:
+      followees.append(result['username'])
+    cursor.close()
+
+    q = "select t2.username " + \
+        "from ( " + \
+        "select followerid from follows " + \
+        "where followeeid = %s) as t1, " + \
+        "(select * from defaultuser) as t2 " + \
+        "where t1.followerid = t2.id; "
+    cursor = g.conn.execute(q,(userid))
+    followers = []
+    for results in cursor:
+      followers.append(result['username'])
+    cursor.close()
+
+    
+    context = dict(data=names, usernames = users, retweet = retweets, upvote = upvotes, 
+                   followees=followees, followers = followers)
     print request.path
     return render_template("users.html", **context)
 
