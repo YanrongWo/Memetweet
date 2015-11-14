@@ -94,16 +94,16 @@ def index():
   if request.cookies.get('userid'):
     q = "select meme.id, meme.title, meme.imageurl, meme.userid, defaultuser.username " + \
         "from " + \
-        "(select id, title, imageurl, userid " + \
+        "(select id, title, imageurl, userid, timeUploaded " + \
         "from memetweet " + \
         "where id in " + \
           "(select followeeid " + \
           "from follows " + \
           "where followerid=%s)) as meme, " + \
         "defaultuser " + \
-      "where defaultuser.id = meme.userid;"
+      "where defaultuser.id = meme.userid order by meme.timeUploaded desc limit 3;"
     cursor = g.conn.execute(q, (request.cookies.get('userid')))
-    context["sections"] = ["followeesPosts"]
+    context["sections"] = ["People_You_Are_Following"]
     #t1.memeid, t1.count as retweets, t2.userid, t3.username, t4.count as upvotes ,t5.imageurl, t5.title
     for c in cursor:
       meme = {}
@@ -112,11 +112,12 @@ def index():
       meme['username'] = c['username']
       meme['imageurl'] = c['imageurl'].strip()
       meme['title'] = c['title'].strip()
-      meme['section'] = "followeesPosts"
+      meme['section'] = "People_You_Are_Following"
       memes.append(meme)
-
-
-  return render_template("menu.html", **context)
+      print meme
+  context["memes"] = memes
+  print memes
+  return render_template("memetweet.html", **context)
 
 @app.route('/categories/<categoryname>/', methods=["POST", "GET"])
 def category(categoryname):
