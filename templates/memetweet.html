@@ -9,7 +9,8 @@
 <div id='content'>
 </div>
 <script>
-	function addMemetweet(memetweet_id, memetweet_name, memetweet_title, memetweet_image, person_id, divToAppend){
+	var see_more_div = '<div class="seemore"><p>See More</p></div>'
+	function addMemetweet(memetweet_id, memetweet_name, memetweet_title, memetweet_image, person_id, divToAppend, locked, inappropriate){
 		$.ajax({
         	method: "POST",
         	url: "/isLiked/",
@@ -23,7 +24,7 @@
 				toAddHtml += person_id + "'>";
 				toAddHtml += memetweet_name;
 				toAddHtml += 		"</p></a>" + 
-									"<button class='default_button retweet' onclick='retweet(this)'> Retweet </button>" +
+									"<button class='default_button retweet2' onclick='retweet(this)'> Retweet </button>" +
 									"<button class='default_button heart heart_full' onclick='unlike(this)'";
 				if (isLiked == "false"){
 					toAddHtml += hide;
@@ -81,29 +82,26 @@
 							"</div>";
 				var divOfInterest = document.getElementById(divToAppend);
 				divOfInterest.innerHTML = divOfInterest.innerHTML.replace("Nothing has been posted! :(", "");
-				divOfInterest.innerHTML += toAddHtml;
+				divOfInterest.innerHTML = divOfInterest.innerHTML.replace(see_more_div, "");
+				divOfInterest.innerHTML += toAddHtml + see_more_div;
         	}  
       	});
 	}
 
 	function addMemetweetSection(all_memetweet_id){
 		var toAddHtml = "<div class='all_memetweets' id='" + all_memetweet_id + "'>";
-		toAddHtml += "<h1 class='title'>" + all_memetweet_id.replace(/_/g, ' ') + "</h1> <p class='title'> Nothing has been posted! :( </p></div>";
+		toAddHtml += "<h1 class='title'>" + all_memetweet_id.replace(/_/g, ' ') + "</h1> <p class='title'> Nothing has been posted! :( </p>" + see_more_div + " </div>";
 		var content = document.getElementById('content');
 		content.innerHTML += toAddHtml;
 	}
 
-	var first_time = true;
 	$( document ).ready(function() {
-		if (first_time){
-			first_time = false;
-			{% for section in sections %}
-				addMemetweetSection("{{section}}");
-			{% endfor %}
-			{% for meme in memes %}
-			      addMemetweet("{{meme['memeid']}}", "{{meme['username']}}", "{{meme['title']}}","{{meme['imageurl']}}", "{{meme['userid']}}", "{{meme['section']}}");
-			{% endfor %}
-		}
+		{% for section in sections %}
+			addMemetweetSection("{{section}}");
+		{% endfor %}
+		{% for meme in memes %}
+		      addMemetweet("{{meme['memeid']}}", "{{meme['username']}}", "{{meme['title']}}","{{meme['imageurl']}}", "{{meme['userid']}}", "{{meme['section']}}");
+		{% endfor %}
 	});
 	
 

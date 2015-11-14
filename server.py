@@ -82,6 +82,7 @@ def test3():
   return ''
 
 
+mainlimit = 3
 @app.route('/', methods=["POST", "GET"])
 def index():  
   cursor = g.conn.execute("SELECT distinct name FROM category")
@@ -91,34 +92,119 @@ def index():
   cursor.close()
   context=dict(data=names)
   memes = []
+  #Get recent memes posted by the people you're following
   if request.cookies.get('userid'):
-    q = "select meme.id, meme.title, meme.imageurl, meme.userid, defaultuser.username " + \
-        "from " + \
-        "(select id, title, imageurl, userid, timeUploaded " + \
-        "from memetweet " + \
-        "where id in " + \
-          "(select followeeid " + \
-          "from follows " + \
-          "where followerid=%s)) as meme, " + \
-        "defaultuser " + \
-      "where defaultuser.id = meme.userid order by meme.timeUploaded desc limit 3;"
-    cursor = g.conn.execute(q, (request.cookies.get('userid')))
+    memes = memes + recent_posts_from_following(request.cookies.get('userid'), 0)
     context["sections"] = ["People_You_Are_Following"]
-    #t1.memeid, t1.count as retweets, t2.userid, t3.username, t4.count as upvotes ,t5.imageurl, t5.title
-    for c in cursor:
-      meme = {}
-      meme['memeid'] = c['id']
-      meme['userid'] = c['userid']
-      meme['username'] = c['username']
-      meme['imageurl'] = c['imageurl'].strip()
-      meme['title'] = c['title'].strip()
-      meme['section'] = "People_You_Are_Following"
-      memes.append(meme)
-      print meme
+    
+  #Get most popular memes
+  memes = memes + most_pop_posts(0)
+  context["sections"].append("Most_Popular_MemeTweets")
+  
+  #Get most recent memes
+  memes = memes + most_recent_posts(0)
+  context["sections"].append("Most_Recent_MemeTweets")
   context["memes"] = memes
-  print memes
-  return render_template("memetweet.html", **context)
+  context["limit"] = mainlimit
+  response = make_response(render_template("memetweet.html", **context))
+  response.set_cookie('followeroffset', str(mainlimit)) 
+  response.set_cookie('popularoffset', str(mainlimit))
+  response.set_cookie('recentoffset', str(mainlimit))
+  return response
 
+def most_recent_posts(offset):
+  memes = []
+  q =  "select m.id, m.title, m.imageurl, m.userid, m.locked, m.timeuploaded, " + \
+      "m.markasinappropriate, d.username " + \
+      "from memetweet m, defaultuser d " + \
+      "where m.userid = d.id " + \
+      "order by m.timeuploaded desc " + \
+      "limit " + str(mainlimit) + " offset %s "
+  cursor = g.conn.execute(q, (offset))
+  for c in cursor:
+    meme = {}
+    meme['locked'] = c['locked']
+    meme['markasinappropriate'] = c['markasinappropriate']
+    meme['timeuploaded'] = c['timeuploaded']
+    meme['memeid'] = c['id']
+    meme['userid'] = c['userid']
+    meme['username'] = c['username']
+    meme['imageurl'] = c['imageurl'].strip()
+    meme['title'] = c['title'].strip()
+    meme['section'] = "Most_Recent_MemeTweets"
+    memes.append(meme)
+  cursor.close()
+  return memes;
+
+def most_pop_posts(offset):
+  memes = []
+  q = "select mru.id, mru.title, mru.imageurl, mru.userid, mru.locked, mru.timeuploaded, mru.markasinappropriate," + \
+      " mru.categoryname, mru.retweets, mru.upvotes, defaultuser.username " + \
+      "from  " + \
+      "  (select mr.id, mr.title, mr.imageurl, mr.userid, mr.locked, " + \
+      "  mr.timeuploaded, mr.markasinappropriate, mr.categoryname, " + \
+      "  mr.retweets, coalesce(u.upvotes, 0) as upvotes " + \
+      "  from  " + \
+      "    (select m.id, m.title, m.imageurl, m.userid, m.locked, " + \
+      "    m.timeuploaded, m.markasinappropriate, m.categoryname,    coalesce(r.retweets, 0) as retweets " + \
+      "    from memetweet as m LEFT OUTER JOIN  " + \
+      "      (select memeid as id, count(memeid) as retweets " + \
+      "      from retweet " + \
+      "      group by memeid) as r " + \
+      "    on m.id = r.id) as mr LEFT OUTER JOIN " + \
+      "    (select memeid as id, count(memeid) as upvotes " + \
+      "    from upvotes " + \
+      "    group by memeid) as u " + \
+      "  on mr.id = u.id) as mru, defaultuser " + \
+      "where mru.userid = defaultuser.id " + \
+      "order by (mru.retweets + mru.upvotes) desc " + \
+      "limit " + str(mainlimit) + " offset %s "
+  cursor = g.conn.execute(q, (offset))
+  for c in cursor:
+    meme = {}
+    meme['locked'] = c['locked']
+    meme['markasinappropriate'] = c['markasinappropriate']
+    meme['timeuploaded'] = c['timeuploaded']
+    meme['memeid'] = c['id']
+    meme['userid'] = c['userid']
+    meme['username'] = c['username']
+    meme['imageurl'] = c['imageurl'].strip()
+    meme['title'] = c['title'].strip()
+    meme['section'] = "Most_Popular_MemeTweets"
+    memes.append(meme)
+  cursor.close()
+  return memes;
+
+def recent_posts_from_following(userid, offset):
+  memes = []
+  q = "select meme.id, meme.title, meme.imageurl, meme.userid, defaultuser.username," + \
+      " meme.timeUploaded, meme.locked, meme.markasinappropriate " + \
+      "from " + \
+      "(select id, title, imageurl, userid, timeUploaded, locked, markasinappropriate " + \
+      "from memetweet " + \
+      "where id in " + \
+        "(select followeeid " + \
+        "from follows " + \
+        "where followerid=%s)) as meme, " + \
+      "defaultuser " + \
+    "where defaultuser.id = meme.userid order by meme.timeUploaded desc limit " + str(mainlimit) + " offset %s;"
+  cursor = g.conn.execute(q, (userid, offset))
+  for c in cursor:
+    meme = {}
+    meme['locked'] = c['locked']
+    meme['timeuploaded'] = c['timeuploaded']
+    meme['markasinappropriate'] = c['markasinappropriate']
+    meme['memeid'] = c['id']
+    meme['userid'] = c['userid']
+    meme['username'] = c['username']
+    meme['imageurl'] = c['imageurl'].strip()
+    meme['title'] = c['title'].strip()
+    meme['section'] = "People_You_Are_Following"
+    memes.append(meme)
+  cursor.close()
+  return memes;
+
+categorylimit = 10
 @app.route('/categories/<categoryname>/', methods=["POST", "GET"])
 def category(categoryname):
   cursor = g.conn.execute("SELECT distinct name FROM category")
@@ -127,8 +213,16 @@ def category(categoryname):
     names.append(result['name'])
   cursor.close()
   context = dict(data=names)
+  context['memes'] = pop_memes_from_category(categoryname, 0)
+  context["sections"] = [categoryname]
+  context["limit"] = categorylimit
+  response = make_response(render_template("memetweet.html", **context))
+  response.set_cookie(categoryname + "offset", str(categorylimit)) 
+  return response
 
-  q = "select t1.id, t1.count as retweets, t2.userid, t3.username, t4.count as upvotes ,t5.imageurl, t5.title " + \
+def pop_memes_from_category(categoryname, offset):
+  q = "select t1.id, t1.count as retweets, t2.userid, t3.username, t4.count as upvotes ,t5.imageurl," + \
+      " t5.title, t5.locked, t5.markasinappropriate " + \
       "from( " + \
         "select id,count(retweet.memeid) " + \
         "from memetweet "  + \
@@ -159,12 +253,13 @@ def category(categoryname):
     "and t4.id = t2.id " + \
     "and t2.userid = t3.id " + \
     "and t5.id = t2.id " + \
-    "order by t1.count+t4.count desc;"
-  cursor = g.conn.execute(q, (categoryname))
+    "order by t1.count+t4.count desc limit " +  str(categorylimit)  + " offset %s;"
+  cursor = g.conn.execute(q, (categoryname, offset))
   memes = []
-  #t1.memeid, t1.count as retweets, t2.userid, t3.username, t4.count as upvotes ,t5.imageurl, t5.title
   for c in cursor:
     meme = {}
+    meme['locked'] = c['locked']
+    meme['markasinappropriate'] = c['markasinappropriate']
     meme['memeid'] = c['id']
     meme['retweets'] = c['retweets']
     meme['userid'] = c['userid']
@@ -173,12 +268,8 @@ def category(categoryname):
     meme['imageurl'] = c['imageurl'].strip()
     meme['title'] = c['title'].strip()
     meme['section'] = categoryname
-    print meme 
     memes.append(meme)
-  context['memes'] = memes
-  context["sections"] = [categoryname]
-  return render_template("memetweet.html", **context)
-
+  return memes
 
 @app.route('/users/<userid>/', methods = ["POST","GET"])
 def users(userid):
@@ -256,17 +347,6 @@ def users(userid):
                    followees=followees, followers = followers)
     print request.path
     return render_template("users.html", **context)
-
-@app.route('/RonasTest', methods=["POST", "GET"])
-def ronasTest():
-  cursor = g.conn.execute("SELECT distinct name FROM category")
-  names = []
-  for result in cursor:
-    names.append(result['name'])
-  cursor.close()
-  context = dict(data=names)
-  context["all_memetweet_id"] = "1"
-  return render_template("memetweet.html", **context)
 
 @app.route('/like/', methods=["POST", "GET"])
 def like():
