@@ -48,9 +48,10 @@
 	height: 40px;
 }
 
-.retweet{
+.retweet2{
 	position: relative;
 	float: right;
+	padding: 0;
 }
 
 .default_button:hover{
