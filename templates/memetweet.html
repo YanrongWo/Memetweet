@@ -19,10 +19,10 @@
 				toAddHtml = "<div class='memetweet_container' id='meme";
 				toAddHtml += memetweet_id + "'>" + 
 								"<div class='memetweet_person'>" +
-									"<p class='memetweet_name person";
+									"<a href='/users/" +person_id + "'> <p class='memetweet_name person";
 				toAddHtml += person_id + "'>";
 				toAddHtml += memetweet_name;
-				toAddHtml += 		"</p>" + 
+				toAddHtml += 		"</p></a>" + 
 									"<button class='default_button retweet' onclick='retweet(this)'> Retweet </button>" +
 									"<button class='default_button heart heart_full' onclick='unlike(this)'";
 				if (isLiked == "false"){
@@ -80,6 +80,7 @@
 								"</div>" +
 							"</div>";
 				var divOfInterest = document.getElementById(divToAppend);
+				divOfInterest.innerHTML = divOfInterest.innerHTML.replace("Nothing has been posted! :(", "");
 				divOfInterest.innerHTML += toAddHtml;
         	}  
       	});
@@ -87,7 +88,7 @@
 
 	function addMemetweetSection(all_memetweet_id){
 		var toAddHtml = "<div class='all_memetweets' id='" + all_memetweet_id + "'>";
-		toAddHtml += "<h1 class='title'>" + all_memetweet_id + "</p> </div>";
+		toAddHtml += "<h1 class='title'>" + all_memetweet_id.replace(/_/g, ' ') + "</h1> <p class='title'> Nothing has been posted! :( </p></div>";
 		var content = document.getElementById('content');
 		content.innerHTML += toAddHtml;
 	}
