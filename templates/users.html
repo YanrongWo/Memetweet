@@ -32,9 +32,10 @@
           <ul class="nav nav-sidebar">
              People Following You:
              <div style = "height: 100px overflow-y: scroll">
-                {% for n in followers %}
+                {% for n in followersid %}
+                {% set urlname = '/users/' + n + '/' %}
 	            <li>            
-				{{n}} 
+				<a href= {{urlname}}> {{n}} </a>
 			    </li>
 			    {% endfor %}
              </div>
@@ -45,9 +46,10 @@
           <ul class="nav nav-sidebar">
 			 People Your Following:
              <div style = "height: 100px overflow-y: scroll">
-				{% for n in followees %}
+				{% for n in followeesid %}
+                {% set urlname = '/users/' + n + '/' %}
 	            <li>            
-				{{n}} 
+				<a href= {{urlname}}> {{n}} </a>
 			    </li>
 			    {% endfor %}
              </div>
@@ -55,16 +57,6 @@
     </div>
 </div>
 
-<div>
-{% for n in followers %}
-	<li>{{n}}</li>
-{% endfor %}
-</div>
 
-<div>
-{% for n in followees %}
-	<li>{{n}}</li>
-{% endfor %}
-</div>
 
 {% endblock %}

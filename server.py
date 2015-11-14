@@ -226,7 +226,7 @@ def users(userid):
       upvotes.append(result['count'])
     cursor.close()
 
-    q = "select t2.username " + \
+    q = "select t2.username, t2.id " + \
         "from ( " + \
         "select followeeid from follows " + \
         "where followerid = %s) as t1, " + \
@@ -234,11 +234,14 @@ def users(userid):
         "where t1.followeeid = t2.id; "
     cursor = g.conn.execute(q,(userid))
     followees = []
-    for results in cursor:
+    followeesid = []
+    print (q,(userid))
+    for result in cursor:
       followees.append(result['username'])
+      followeesid.append(str(result['id']))
     cursor.close()
 
-    q = "select t2.username " + \
+    q = "select t2.username, t2.id " + \
         "from ( " + \
         "select followerid from follows " + \
         "where followeeid = %s) as t1, " + \
@@ -246,13 +249,15 @@ def users(userid):
         "where t1.followerid = t2.id; "
     cursor = g.conn.execute(q,(userid))
     followers = []
-    for results in cursor:
+    followersid = []
+    for result in cursor:
       followers.append(result['username'])
+      followersid.append(str(result['id']))
     cursor.close()
 
     
     context = dict(data=names, usernames = users, retweet = retweets, upvote = upvotes, 
-                   followees=followees, followers = followers)
+                   followees=followees, followers = followers, followersid = followersid, followeesid= followeesid)
     print request.path
     return render_template("users.html", **context)
 
