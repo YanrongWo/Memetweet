@@ -11,7 +11,6 @@
   // This is called with the results from from FB.getLoginStatus().
   function statusChangeCallback(response) {
     console.log('statusChangeCallback');
-    console.log(response.authResponse.userID);
     // The response object is returned with a status field that lets the
     // app know the current login status of the person.
     // Full docs on the response object can be found in the documentation
@@ -24,11 +23,15 @@
       document.getElementById('status').innerHTML = 'Please log ' +
         'into this app.';
       document.getElementById('homebutton').style.display = "none";
-
       $.ajax({
         	method : "POST",
         	url: "/test2/",
-        	data: {loggedin: false}
+        	data: {loggedin: false},
+          success: function(data){
+            if (data == "changed"){
+              location.reload(true);
+            }
+          }
        });
     } else {
       // The person is not logged into Facebook, so we're not sure if
@@ -37,7 +40,12 @@
       $.ajax({
         	method : "POST",
         	url: "/test3/",
-        	data: {loggedin: false}
+        	data: {loggedin: false},
+          success: function(data){
+            if (data == "changed"){
+              location.reload(true);
+            }
+          }
         });
     }
   }
@@ -90,22 +98,21 @@
   // Here we run a very simple test of the Graph API after login is
   // successful.  See statusChangeCallback() for when this call is made.
   function testAPI(userid) {
-    console.log('Welcome!  Fetching your information.... ');
     FB.api('/me', function(response) {
-      console.log('Successful login for: ' + response.name);
-      /*document.getElementById('status').innerHTML =
-        'Thanks for logging in, ' + response.name + '!';*/
       document.getElementById('homebutton').style.display = "block";
       document.getElementById('homebutton').href = "/users/"+response.id;
       document.getElementById('userpage').innerHTML=response.name;
-      console.log(userid);
-      console.log(response.name);
       $.ajax({
         method : "POST",
         url: "/test1/",
         data: {loggedin: true,
           userid: userid,
-          username: response.name
+          username: response.name,
+        },
+        success: function(data){
+          if (data == "changed"){
+            location.reload(true);
+          }
         }
       });
     });

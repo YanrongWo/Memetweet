@@ -9,7 +9,8 @@
 <div id='content'>
 </div>
 <script>
-	function addMemetweet(memetweet_id, memetweet_name, memetweet_title, memetweet_image, person_id, divToAppend){
+	var see_more_div = '<div class="seemore" onclick="seeMore(this)"><p>See More</p></div>'
+	function addMemetweet(memetweet_id, memetweet_name, memetweet_title, memetweet_image, person_id, divToAppend, locked, markasinappropriate){
 		$.ajax({
         	method: "POST",
         	url: "/isLiked/",
@@ -17,8 +18,11 @@
         	success: function(isLiked){
         		var hide = "style='display:none'";
 				toAddHtml = "<div class='memetweet_container' id='meme";
-				toAddHtml += memetweet_id + "'>" + 
-								"<div class='memetweet_person'>" +
+				toAddHtml += memetweet_id + "'>";
+				if(markasinappropriate == "True"){   
+					toAddHtml += "<div class='blocking'><p class='warning'> This memetweet has been marked as in appropriate! Proceed at your own risk! </p><button class='seeanyways' onclick='show(this)'>See Anyways</button></div>";
+				}
+				toAddHtml += 	"<div class='memetweet_person'>" +
 									"<a href='/users/" +person_id + "'> <p class='memetweet_name person";
 				toAddHtml += person_id + "'>";
 				toAddHtml += memetweet_name;
@@ -49,11 +53,16 @@
 				     						"<h4 class='panel-title'>" +
 				        						"<a role='button' data-toggle='collapse' data-parent='#accordion" + memetweet_id + "' href='#collapse" + memetweet_id + "' aria-expanded='true' aria-controls='collapseOne'>" +
 				          							"<p class='comment_bar view_comments' onclick='viewComments(this)'>View Comments</p>" +
-				        						"</a>" +
-				        						"<button type='button' class='comment_bar add_comment' data-toggle='modal' data-target='#modal" + memetweet_id + "'>" +
+				        						"</a>";
+				if (locked == "False"){
+				        			toAddHtml +=	"<button type='button' class='comment_bar add_comment' data-toggle='modal' data-target='#modal" + memetweet_id + "'>" +
 								  					"Add Comment" +
-												"</button>" +
-				      						"</h4>" +
+												"</button>";
+				}else{
+									toAddHtml += "<p class='locked'> Locked. </p>"
+				}
+
+				      		toAddHtml +=	"</h4>" +
 				    					"</div>" +
 				    					"<div id='collapse" + memetweet_id + "' class='panel-collapse collapse' role='tabpanel' aria-labelledby='headingOne'>" +
 				      						"<div class='panel-body'>" +
@@ -81,29 +90,54 @@
 							"</div>";
 				var divOfInterest = document.getElementById(divToAppend);
 				divOfInterest.innerHTML = divOfInterest.innerHTML.replace("Nothing has been posted! :(", "");
-				divOfInterest.innerHTML += toAddHtml;
+				divOfInterest.innerHTML = divOfInterest.innerHTML.replace(see_more_div, "");
+				divOfInterest.innerHTML += toAddHtml + see_more_div;
         	}  
       	});
 	}
 
+	function seeMore(element){
+		var section = $(element).closest('.all_memetweets').attr('id');
+		$.ajax({
+        	method: "POST",
+        	url: "/seeMore/",
+        	data: { section: section },
+        	success: function(data){
+    			var result = JSON.parse(data);
+    			document.cookie = result.cookie_name + "=" + result.offset;
+    			if (result.memes.length == 0){
+    				$(element).first().text("No More MemeTweets in this Section :(");
+    				$(element).prop('onclick',null).off('click');
+    				$(element).hover(function() {
+						$(this).css('cursor','default');
+					});
+    			}
+    			else{
+    				/*{"memes": [{"username": "user2", "locked": false, "title": "Car Ride", "imageurl": "http://media1.popsugar-assets.com/files/2013/04/15/3/192/1922243/bd02434d682ae8a4_56acc89ca0a911e2b4b422000a1f903d_7.xxxlarge/i/Car-Happy.jpg", "userid": 2, "memeid": 2, "markasinappropriate": false, "section": "People_You_Are_Following"}, {"username": "user1", "locked": false, "title": "Hi Chicken!", "imageurl": "http://cdn.iwastesomuchtime.com/9222015193414.jpg", "userid": 1, "memeid": 1, "markasinappropriate": false, "section": "People_You_Are_Following"}], "cookie_name": "followeroffset", "offset": "6"}*/
+    				for (var i = 0; i < result.memes.length; i++){
+    					addMemetweet(result.memes[i].memeid, result.memes[i].username, result.memes[i].title, result.memes[i].imageurl, result.memes[i].userid, result.memes[i].section, result.memes[i].locked, result.memes[i].inappropriate)			
+    				}
+
+    			}
+        	}  
+      	});
+
+	}
+
 	function addMemetweetSection(all_memetweet_id){
 		var toAddHtml = "<div class='all_memetweets' id='" + all_memetweet_id + "'>";
-		toAddHtml += "<h1 class='title'>" + all_memetweet_id.replace(/_/g, ' ') + "</h1> <p class='title'> Nothing has been posted! :( </p></div>";
+		toAddHtml += "<h1 class='title'>" + all_memetweet_id.replace(/_/g, ' ') + "</h1> <p class='title'> Nothing has been posted! :( </p>" + see_more_div + " </div>";
 		var content = document.getElementById('content');
 		content.innerHTML += toAddHtml;
 	}
 
-	var first_time = true;
 	$( document ).ready(function() {
-		if (first_time){
-			first_time = false;
-			{% for section in sections %}
-				addMemetweetSection("{{section}}");
-			{% endfor %}
-			{% for meme in memes %}
-			      addMemetweet("{{meme['memeid']}}", "{{meme['username']}}", "{{meme['title']}}","{{meme['imageurl']}}", "{{meme['userid']}}", "{{meme['section']}}");
-			{% endfor %}
-		}
+		{% for section in sections %}
+			addMemetweetSection("{{section}}");
+		{% endfor %}
+		{% for meme in memes %}
+		      addMemetweet("{{meme['memeid']}}", "{{meme['username']}}", "{{meme['title']}}","{{meme['imageurl']}}", "{{meme['userid']}}", "{{meme['section']}}", "{{meme['locked']}}", "{{meme['markasinappropriate']}}");
+		{% endfor %}
 	});
 	
 
@@ -130,15 +164,15 @@
         	url: "/like/",
         	data: { memeId: getMemeId(element) },
         	success: function(data){
-        				if (data != ""){
-            				alert(data);
-            			}
-            			else
-            			{
-    						var heart_full = $(getMemeContainer(element)).find(".heart_full")[0];
-							$(heart_full).css('display', 'inline');
-							$(element).css('display', 'none');	
-            			}
+				if (data == "You need to be logged in to do that!"){
+    				alert(data);
+    			}
+    			else
+    			{
+					var heart_full = $(getMemeContainer(element)).find(".heart_full")[0];
+					$(heart_full).css('display', 'inline');
+					$(element).css('display', 'none');	
+    			}
         	}  
       	});
 	}
@@ -185,6 +219,10 @@
 
 	function getMemeContainer(element){
 		return $(element).closest('.memetweet_container');
+	}
+
+	function show(element){
+		$(element).closest('.blocking').css('display', 'none');	
 	}
 
 	function viewComments(element){
