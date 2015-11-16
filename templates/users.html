@@ -68,7 +68,7 @@
           </ul>
 		  {% if loggedin %}
           <ul class="nav nav-sidebar">
-			 <div id = 'content'>
+			 <div id = 'adminrating'>
 			 	{% for n in usernames %}
 			 	{% set admin = n %}
 			        <div>Rate This Admin:</div>
@@ -110,7 +110,7 @@
         	data: {},
         	success: function(admin){
         				if (admin == "true"){
-            				document.getElementById('content').style.display = 'none';
+            				document.getElementById('adminrating').style.display = 'none';
             			}
         	}  
       	});
