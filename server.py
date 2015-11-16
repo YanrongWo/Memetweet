@@ -279,7 +279,7 @@ def users(userid):
     q = "SELECT username from defaultuser where id = %s;"
     cursor = g.conn.execute(q,(userid))
     users = []
-    print (q,(userid))
+
     for result in cursor:
       users.append(result['username'])
     cursor.close()
@@ -295,7 +295,7 @@ def users(userid):
     
     cursor = g.conn.execute(q,(userid))
     retweets = []
-    print (q,(userid))
+
     for result in cursor:
       retweets.append(result['count'])
     cursor.close()
@@ -311,7 +311,7 @@ def users(userid):
     
     cursor = g.conn.execute(q,(userid))
     upvotes = []
-    print (q,(userid))
+
     for result in cursor:
       upvotes.append(result['count'])
     cursor.close()
@@ -324,7 +324,7 @@ def users(userid):
         "where t1.followeeid = t2.id; "
     cursor = g.conn.execute(q,(userid))
     followees = []
-    print (q,(userid))
+
     for result in cursor:
       followees.append({'name':result['username'], 'id':str(result['id'])})
     cursor.close()
@@ -353,6 +353,11 @@ def users(userid):
       admin = 1
     cursor.close()
     ratings = []
+    loggedin = False
+    if(request.cookies.get('userid')):
+      loggedin = True
+
+    limit = 5
     if(admin == 1):
       q = "select avg(rating) " + \
         "from rates " + \
@@ -365,14 +370,13 @@ def users(userid):
           ratings.append({'avg':str(result['avg'])})
       cursor.close()
 
-    print request.cookies.get('userid')
     meme = []
     q = "select * from memetweet where userid = %s; "
     cursor = g.conn.execute(q,(userid))
     for result in cursor:
       meme.append({'memeid': result['id'], 'title':result['title'], 'imageurl': result['imageurl'], 
        'userid': result['userid'], 'section': 'Posts', 'locked': result['locked'],
-       'markasinappropriate': result['markasinappropriate']})
+       'markasinappropriate': result['markasinappropriate'], 'isretweet': 'False'})
     cursor.close()
 
     q = "select * from memetweet left outer join retweet on memetweet.id = retweet.memeid where retweet.userid = %s ;"
@@ -380,12 +384,12 @@ def users(userid):
     for result in cursor:
       meme.append({'memeid': result['id'], 'title':result['title'], 'imageurl': result['imageurl'],
        'userid': result['userid'], 'section': 'Retweets', 'locked': result['locked'], 
-       'markasinappropriate': result['markasinappropriate']})
+       'markasinappropriate': result['markasinappropriate'], 'isretweet': 'True' })
     section = ["Retweets", "Posts"]
     context = dict(data=names, usernames = users, retweet = retweets, upvote = upvotes, 
-                   followees=followees, followers = followers, ratings = ratings, memes = meme, sections = section)
-    print meme
-    print section
+                   followees=followees, followers = followers, ratings = ratings, memes = meme, sections = section, 
+                   loggedin = loggedin, limit = limit)
+
     return render_template("users.html", **context)
 
 
