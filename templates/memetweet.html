@@ -59,7 +59,7 @@
 								  					"Add Comment" +
 												"</button>";
 				}else{
-									toAddHtml += "<p> Locked. </p>"
+									toAddHtml += "<p class='locked'> Locked. </p>"
 				}
 
 				      		toAddHtml +=	"</h4>" +
@@ -222,7 +222,7 @@
 	}
 
 	function show(element){
-		$(element).closest('blocking').css('display', 'none');	
+		$(element).closest('.blocking').css('display', 'none');	
 	}
 
 	function viewComments(element){

@@ -162,3 +162,8 @@ textarea{
 	background-color: #ccc;
 	cursor: pointer;
 }
+
+.locked{
+	float: right;
+	margin-top: 10px;
+}
