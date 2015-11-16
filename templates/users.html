@@ -44,7 +44,7 @@
 
 
           <ul class="nav nav-sidebar">
-			 People Your Following:
+			 People You're Following:
              <div style = "height: 100px overflow-y: scroll">
 				{% for n in followees %}
                 {% set urlname = '/users/' + n.id + '/' %}
@@ -57,7 +57,7 @@
 
           <ul class="nav nav-sidebar">
 			 <div id = 'admin'>
-			 	{% if ratings %}
+			 {% if ratings %}
 			 	{% for n in ratings %}
 			    Avg Rating:
 			    <li>
@@ -69,8 +69,6 @@
 		  {% if loggedin %}
           <ul class="nav nav-sidebar">
 			 <div id = 'adminrating'>
-			 	{% for n in usernames %}
-			 	{% set admin = n %}
 			        <div>Rate This Admin:</div>
 			        	<div>
 			            	<div id = "ratings" class="btn-group" data-toggle="buttons">
@@ -92,10 +90,9 @@
 			            	</div>
 			        	</div>
 			    	</div>
-			    	{% endfor %}
-			    	{% endif %}
 			    	{% endif %}
 			 </div>
+			 {% endif %}
         </ul>
 
 
@@ -110,7 +107,8 @@
         	data: {},
         	success: function(admin){
         				if (admin == "true"){
-            				document.getElementById('adminrating').style.display = 'none';
+        					if(document.getElementById('adminrating'))
+            					document.getElementById('adminrating').style.display = 'none';
             			}
         	}  
       	});
