@@ -389,18 +389,22 @@ def users(userid):
       cursor.close()
 
     meme = []
-    q = "select * from memetweet where userid = %s; "
+    q = "select * from memetweet inner join defaultuser on memetweet.userid = defaultuser.id where userid = %s; "
     cursor = g.conn.execute(q,(userid))
     for result in cursor:
-      meme.append({'memeid': result['id'], 'title':result['title'], 'imageurl': result['imageurl'], 
+      meme.append({'memeid': result['id'], 'username': result['username'], 'title':result['title'].strip(), 'imageurl': result['imageurl'].strip(), 
        'userid': result['userid'], 'section': 'Posts', 'locked': result['locked'],
        'markasinappropriate': result['markasinappropriate'], 'isretweet': 'False'})
     cursor.close()
 
-    q = "select * from memetweet left outer join retweet on memetweet.id = retweet.memeid where retweet.userid = %s ;"
+    q = "select mt.id, mt.title, mt.userid, mt.imageurl, mt.locked, mt.timeuploaded, mt.markasinappropriate, mt.categoryname, du.username " + \
+    "from memetweet mt left outer join retweet rt on mt.id = rt.memeid " + \
+    "left outer join defaultuser du on du.id = mt.userid " + \
+    "where rt.userid = %s ;"
+
     cursor = g.conn.execute(q,(userid))
     for result in cursor:
-      meme.append({'memeid': result['id'], 'title':result['title'].strip(), 'imageurl': result['imageurl'].strip(),
+      meme.append({'memeid': result['id'], 'username': result['username'], 'title':result['title'].strip(), 'imageurl': result['imageurl'].strip(),
        'userid': result['userid'], 'section': 'Retweets', 'locked': result['locked'], 
        'markasinappropriate': result['markasinappropriate'], 'isretweet': 'True' })
     section = ["Retweets", "Posts"]
