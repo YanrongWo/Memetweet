@@ -167,3 +167,10 @@ textarea{
 	float: right;
 	margin-top: 10px;
 }
+
+.popover{
+	display: inherit;
+    float: left;
+    left: -20vw;
+    top: 5vw;
+}

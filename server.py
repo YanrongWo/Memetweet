@@ -389,31 +389,46 @@ def users(userid):
       cursor.close()
 
     meme = []
-    q = "select * from memetweet inner join defaultuser on memetweet.userid = defaultuser.id where userid = %s; "
-    cursor = g.conn.execute(q,(userid))
-    for result in cursor:
-      meme.append({'memeid': result['id'], 'username': result['username'], 'title':result['title'].strip(), 'imageurl': result['imageurl'].strip(), 
-       'userid': result['userid'], 'section': 'Posts', 'locked': result['locked'],
-       'markasinappropriate': result['markasinappropriate'], 'isretweet': 'False'})
-    cursor.close()
+    meme = meme + getposts(userid, 0)
 
-    q = "select mt.id, mt.title, mt.userid, mt.imageurl, mt.locked, mt.timeuploaded, mt.markasinappropriate, mt.categoryname, du.username " + \
-    "from memetweet mt left outer join retweet rt on mt.id = rt.memeid " + \
-    "left outer join defaultuser du on du.id = mt.userid " + \
-    "where rt.userid = %s ;"
+    meme = meme + getretweets(userid, 0)
 
-    cursor = g.conn.execute(q,(userid))
-    for result in cursor:
-      meme.append({'memeid': result['id'], 'username': result['username'], 'title':result['title'].strip(), 'imageurl': result['imageurl'].strip(),
-       'userid': result['userid'], 'section': 'Retweets', 'locked': result['locked'], 
-       'markasinappropriate': result['markasinappropriate'], 'isretweet': 'True' })
     section = ["Retweets", "Posts"]
     context = dict(data=names, usernames = users, retweet = retweets, upvote = upvotes, 
                    followees=followees, followers = followers, ratings = ratings, memes = meme, sections = section, 
                    loggedin = loggedin, limit = limit, admin=admin)
+    response = make_response(render_template("users.html", **context))
+    response.set_cookie("postsoffset", str(5));
+    response.set_cookie("retweetsoffset", str(5));
+    return response
 
-    return render_template("users.html", **context)
+def getposts(userid, offset):
+  meme = []
+  q = "select memetweet.id, memetweet.title, memetweet.imageurl, memetweet.userid, " + \
+      "memetweet.locked, memetweet.timeuploaded, memetweet.markasinappropriate, defaultuser.username " + \
+   "from memetweet inner join defaultuser on memetweet.userid = defaultuser.id where userid = %s limit 5 offset %s; "
+  cursor = g.conn.execute(q,(userid, offset))
+  for result in cursor:
+    meme.append({'memeid': result['id'], 'username': result['username'], 'title':result['title'].strip(), 'imageurl': result['imageurl'].strip(), 
+     'userid': result['userid'], 'section': 'Posts', 'locked': result['locked'],
+     'markasinappropriate': result['markasinappropriate'], 'isretweet': 'False'})
+  cursor.close()
+  return meme
 
+def getretweets(userid, offset):
+  meme = []
+  q = "select mt.id, mt.title, mt.userid, mt.imageurl, mt.locked, mt.timeuploaded, mt.markasinappropriate, mt.categoryname, du.username " + \
+  "from memetweet mt left outer join retweet rt on mt.id = rt.memeid " + \
+  "left outer join defaultuser du on du.id = mt.userid " + \
+  "where rt.userid = %s limit 5 offset %s;"
+
+  cursor = g.conn.execute(q,(userid, offset))
+  for result in cursor:
+    meme.append({'memeid': result['id'], 'username': result['username'], 'title':result['title'].strip(), 'imageurl': result['imageurl'].strip(),
+     'userid': result['userid'], 'section': 'Retweets', 'locked': result['locked'], 
+     'markasinappropriate': result['markasinappropriate'], 'isretweet': 'True' })
+  cursor.close()
+  return meme
 
 @app.route('/like/', methods=["POST", "GET"])
 def like():
@@ -602,6 +617,14 @@ def see_more():
     cookie_name = 'popularoffset'
     memes = most_recent_posts(offset)
     offset = str(int(offset) + int(mainlimit))
+  elif section == "Posts":
+    offset = request.cookies.get('postsoffset')
+    cookie_name = 'postsoffset'
+    offset = str(int(offset) + 5)
+  elif section == "Retweets":
+    offset = request.cookies.get('retweetsoffset')
+    cookie_name = 'retweetsoffset'
+    str(int(offset) + 5)
   else:
     offset = request.cookies.get(section + "offset")
     cookie_name = section + "offset"
