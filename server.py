@@ -419,8 +419,8 @@ def getposts(userid, offset):
    "from memetweet inner join defaultuser on memetweet.userid = defaultuser.id where userid = %s order by memetweet.timeuploaded desc limit 5 offset %s; "
   cursor = g.conn.execute(q,(userid, offset))
   for result in cursor:
-    meme.append({'memeid': result['id'], 'username': result['username'], 'title':result['title'].strip(), 'imageurl': result['imageurl'].strip(), 
-     'userid': result['userid'], 'section': 'Posts', 'locked': result['locked'],
+    meme.append({'memeid': result['id'], 'username': request.cookies.get('username'), 'title':result['title'].strip(), 'imageurl': result['imageurl'].strip(), 
+     'userid': request.cookies.get('userid'), 'section': 'Posts', 'locked': result['locked'],
      'markasinappropriate': result['markasinappropriate'], 'isretweet': 'False'})
   cursor.close()
   return meme
