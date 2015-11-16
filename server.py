@@ -377,8 +377,8 @@ def users(userid):
     isfollowing = False
     if(request.cookies.get('userid')):
       loggedin = True
-      q = "select * from follows where followerid = %s"
-      cursor = g.conn.execute(q, (request.cookies.get('userid')))
+      q = "select * from follows where followerid = %s and followeeid = %s"
+      cursor = g.conn.execute(q, (request.cookies.get('userid'), userid))
       for c in cursor:
         isfollowing = True
 
@@ -398,11 +398,14 @@ def users(userid):
 
     meme = meme + getretweets(userid, 0)
 
+    myPage = False
+    if (userid == request.cookies.get('userid')):
+      myPage = True
 
     section = ["Retweets", "Posts"]
     context = dict(data=names, usernames = users, retweet = retweets, upvote = upvotes, 
                    followees=followees, followers = followers, ratings = ratings, memes = meme, sections = section, 
-                   loggedin = loggedin, limit = limit, admin=admin, isfollowing = isfollowing)
+                   loggedin = loggedin, limit = limit, admin=admin, isfollowing = isfollowing, myPage = myPage)
     response = make_response(render_template("users.html", **context))
     response.set_cookie("postsoffset", str(5));
     response.set_cookie("retweetsoffset", str(5));
@@ -601,6 +604,21 @@ def sfw():
   memeid = request.form['memeId']
   q = "UPDATE memetweet SET markasinappropriate = FALSE WHERE id = %s"
   g.conn.execute(q, (memeid));
+  return ''
+
+@app.route('/follow/', methods=['POST'])
+def follow():
+  q = "INSERT INTO follows VALUES (%s, %s)"
+  print request.cookies.get('otheruserid')
+  print request.cookies.get('userid')
+  g.conn.execute(q, (request.cookies.get('otheruserid'), request.cookies.get('userid')))
+  return ''
+@app.route('/unfollow/', methods=['POST'])
+def unfollow():
+  q = "DELETE FROM follows WHERE followeeid = %s AND followerid = %s"
+  print request.cookies.get('otheruserid')
+  print request.cookies.get('userid')
+  g.conn.execute(q, (request.cookies.get('otheruserid'), request.cookies.get('userid')))
   return ''
 
 @app.route('/seeMore/', methods=["POST"])
