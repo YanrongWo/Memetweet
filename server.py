@@ -427,10 +427,10 @@ def getposts(userid, offset):
 
 def getretweets(userid, offset):
   meme = []
-  q = "select mt.id, mt.title, mt.userid, mt.imageurl, mt.locked, mt.timeuploaded, mt.markasinappropriate, mt.categoryname, du.username " + \
+  q = "select mt.id, mt.title, mt.userid, mt.imageurl, mt.locked, rt.timeretweeted, mt.markasinappropriate, mt.categoryname, du.username " + \
   "from memetweet mt left outer join retweet rt on mt.id = rt.memeid " + \
   "left outer join defaultuser du on du.id = mt.userid " + \
-  "where rt.userid = %s order by mt.timeuploaded desc limit 5 offset %s;"
+  "where rt.userid = %s order by mt.timeretweeted desc limit 5 offset %s;"
 
   cursor = g.conn.execute(q,(userid, offset))
   for result in cursor:
