@@ -1,12 +1,17 @@
 {% extends "memetweet.html" %}
 
+{% block links %}
+	{{super()}}
+	<link rel='stylesheet' href='{{ url_for("static", filename="users.css") }}'>
+{% endblock %}
+
 {% block users %}
-<div class = "container">
+<div class = "container infocontainer">
 	<div class="mysidebar">
-          <ul class="nav nav-sidebar">
+          <ul class="nav nav-sidebar info">
           	<div>
 	            {% for n in usernames %}
-	            <li>            
+	            <li id='infoname'>            
 				{{n}}	
 			    </li>
 			{% endfor %}
@@ -28,8 +33,7 @@
 			</div>
           </ul>
 
-
-          <ul class="nav nav-sidebar">
+          <ul class="nav nav-sidebar info">
              People Following You:
              <div style = "height: 100px overflow-y: scroll">
                 {% for n in followers %}
@@ -38,12 +42,14 @@
 				<a href= {{urlname}}> {{n.name}} </a>
 			    </li>
 			    {% endfor %}
+			    {% if followers|length == 0 %}
+			    	No one :(
+			    {% endif %}
              </div>
           </ul>
 
 
-
-          <ul class="nav nav-sidebar">
+          <ul class="nav nav-sidebar info">
 			 People You're Following:
              <div style = "height: 100px overflow-y: scroll">
 				{% for n in followees %}
@@ -52,23 +58,29 @@
 				<a href= {{urlname}}> {{n.name}} </a>
 			    </li>
 			    {% endfor %}
+			    {% if followees|length == 0 %}
+			    	No one :(
+			    {% endif %}
              </div>
           </ul>
-
-          <ul class="nav nav-sidebar">
+          {% if admin == 1%}
+          <ul class="nav nav-sidebar info">
 			 <div id = 'admin'>
-			 {% if ratings %}
-			 	{% for n in ratings %}
+
 			    Avg Rating:
 			    <li>
-			    {{n.avg}}
+			    {% if not ratings == -1%}
+			    	{{ratings}}
+			    {% else %}
+			    	Admin doesn't have a rating yet!
+			    {% endif %}
 			    </li>
-				{% endfor %}
 			 </div>
           </ul>
 		  {% if loggedin %}
-          <ul class="nav nav-sidebar">
+          <ul class="nav nav-sidebar info">
 			 <div id = 'adminrating'>
+
 			        <div>Rate This Admin:</div>
 			        	<div>
 			            	<div id = "ratings" class="btn-group" data-toggle="buttons">
@@ -107,8 +119,7 @@
         	data: {},
         	success: function(admin){
         				if (admin == "true"){
-        					if(document.getElementById('adminrating'))
-            					document.getElementById('adminrating').style.display = 'none';
+            				document.getElementById('adminrating').innerHTML = "You can't rate other admins!";
             			}
         	}  
       	});
