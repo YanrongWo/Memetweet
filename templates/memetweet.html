@@ -14,7 +14,7 @@
 
 <script>
 	var see_more_div = '<div class="seemore" onclick="seeMore(this)"><p>See More</p></div>'
-	function addMemetweet(memetweet_id, memetweet_name, memetweet_title, memetweet_image, person_id, divToAppend, locked, markasinappropriate){
+	function addMemetweet(memetweet_id, memetweet_name, memetweet_title, memetweet_image, person_id, divToAppend, locked, markasinappropriate, isretweet){
 		$.ajax({
         	method: "POST",
         	url: "/isLiked/",
@@ -26,8 +26,11 @@
 				if(markasinappropriate == "True"){   
 					toAddHtml += "<div class='blocking'><p class='warning'> This memetweet has been marked as in appropriate! Proceed at your own risk! </p><button class='seeanyways' onclick='show(this)'>See Anyways</button></div>";
 				}
-				toAddHtml += 	"<div class='memetweet_person'>" +
-									"<a href='/users/" +person_id + "'> <p class='memetweet_name person";
+				toAddHtml += 	"<div class='memetweet_person'>";
+				if (isretweet && isretweet == "True"){
+					toAddHtml += "<p style='display:inline-block;top: 5px;position:relative;font-size: 25px;'> Retweeted by </p>";
+				}
+				toAddHtml += 		"<a href='/users/" +person_id + "'> <p class='memetweet_name person";
 				toAddHtml += person_id + "'>";
 				toAddHtml += memetweet_name;
 				toAddHtml += 		"</p></a>" + 
@@ -117,9 +120,8 @@
 					});
     			}
     			else{
-    				/*{"memes": [{"username": "user2", "locked": false, "title": "Car Ride", "imageurl": "http://media1.popsugar-assets.com/files/2013/04/15/3/192/1922243/bd02434d682ae8a4_56acc89ca0a911e2b4b422000a1f903d_7.xxxlarge/i/Car-Happy.jpg", "userid": 2, "memeid": 2, "markasinappropriate": false, "section": "People_You_Are_Following"}, {"username": "user1", "locked": false, "title": "Hi Chicken!", "imageurl": "http://cdn.iwastesomuchtime.com/9222015193414.jpg", "userid": 1, "memeid": 1, "markasinappropriate": false, "section": "People_You_Are_Following"}], "cookie_name": "followeroffset", "offset": "6"}*/
     				for (var i = 0; i < result.memes.length; i++){
-    					addMemetweet(result.memes[i].memeid, result.memes[i].username, result.memes[i].title, result.memes[i].imageurl, result.memes[i].userid, result.memes[i].section, result.memes[i].locked, result.memes[i].inappropriate)			
+    					addMemetweet(result.memes[i].memeid, result.memes[i].username, result.memes[i].title, result.memes[i].imageurl, result.memes[i].userid, result.memes[i].section, result.memes[i].locked, result.memes[i].inappropriate, result.memes[i].isretweet)			
     				}
 
     			}
@@ -140,7 +142,7 @@
 			addMemetweetSection("{{section}}");
 		{% endfor %}
 		{% for meme in memes %}
-		      addMemetweet("{{meme['memeid']}}", "{{meme['username']}}", "{{meme['title']}}","{{meme['imageurl']}}", "{{meme['userid']}}", "{{meme['section']}}", "{{meme['locked']}}", "{{meme['markasinappropriate']}}");
+		      addMemetweet("{{meme['memeid']}}", "{{meme['username']}}", "{{meme['title']}}","{{meme['imageurl']}}", "{{meme['userid']}}", "{{meme['section']}}", "{{meme['locked']}}", "{{meme['markasinappropriate']}}", "{{meme['isretweet']}}");
 		{% endfor %}
 
 	});
