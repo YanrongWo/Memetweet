@@ -1,8 +1,8 @@
-{% extends "menu.html" %}
+{% extends "memetweet.html" %}
 
 {% block users %}
 <div class = "container">
-	<div class="col-sm-3 col-md-2 sidebar">
+	<div class="mysidebar">
           <ul class="nav nav-sidebar">
           	<div>
 	            {% for n in usernames %}
@@ -32,10 +32,10 @@
           <ul class="nav nav-sidebar">
              People Following You:
              <div style = "height: 100px overflow-y: scroll">
-                {% for n in followersid %}
-                {% set urlname = '/users/' + n + '/' %}
+                {% for n in followers %}
+                {% set urlname = '/users/' + n.id + '/' %}
 	            <li>            
-				<a href= {{urlname}}> {{n}} </a>
+				<a href= {{urlname}}> {{n.name}} </a>
 			    </li>
 			    {% endfor %}
              </div>
@@ -46,14 +46,133 @@
           <ul class="nav nav-sidebar">
 			 People Your Following:
              <div style = "height: 100px overflow-y: scroll">
-				{% for n in followeesid %}
-                {% set urlname = '/users/' + n + '/' %}
+				{% for n in followees %}
+                {% set urlname = '/users/' + n.id + '/' %}
 	            <li>            
-				<a href= {{urlname}}> {{n}} </a>
+				<a href= {{urlname}}> {{n.name}} </a>
 			    </li>
 			    {% endfor %}
              </div>
           </ul>
+
+          <ul class="nav nav-sidebar">
+			 <div id = 'admin'>
+			 	{% if ratings %}
+			 	{% for n in ratings %}
+			    Avg Rating:
+			    <li>
+			    {{n.avg}}
+			    </li>
+				{% endfor %}
+			 </div>
+          </ul>
+
+          <ul class="nav nav-sidebar">
+			 <div id = 'content'>
+			 	{% for n in usernames %}
+			 	{% set admin = n %}
+			        <div>Rate This Admin:</div>
+			        	<div>
+			            	<div id = "ratings" class="btn-group" data-toggle="buttons">
+			                	<label>
+			                    	<input type="button" id="r1" value="1" onClick = "implementvote(1);"/>
+			                	</label> 
+			                	<label >
+			                    	<input type="button" id="r2" value="2" onClick = "implementvote(2);"/>
+			                	</label> 
+			                	<label>
+			                    	<input type="button" id="r3" value="3" onClick = "implementvote(3);"/>
+			                	</label> 
+			                	<label>
+			                    	<input type="button" id="r4" value="4" onClick = "implementvote(4);"/>
+			               		</label> 
+			                	<label>
+			                    	<input type="button" id="r5" value="5" onClick = "implementvote(5);"/>
+			                	</label>
+			            	</div>
+			        	</div>
+			    	</div>
+			    	{% endfor %}
+			    	{% endif %}
+			 </div>
+        </ul>
+
+
+<script>
+	var first_time = true;
+	$( document ).ready(function() {
+		if (first_time){
+			first_time = false;
+			$.ajax({
+        	method: "POST",
+        	url: "/rateradmin/",
+        	data: {},
+        	success: function(admin){
+        				if (admin == "true"){
+            				document.getElementById('content').style.display = 'none';
+            			}
+        	}  
+      	});
+	}
+
+	});
+/*
+	function changeto1(){
+		alert("changed vote for to 1");
+		implementvote(1);
+		
+	}function changeto2(){
+		alert("changed vote for to 2");
+		implementvote(2);
+		
+	}function changeto3(){
+		alert("changed vote for to 3");
+		implementvote(3);
+		
+	}function changeto4(){
+		alert("changed vote for to 4");
+		implementvote(4);
+		
+	}
+	function changeto5(){
+		alert("changed vote for to 5");
+		implementvote(5);
+	}
+	*/
+	function implementvote(value){
+		var path = window.location.pathname;
+		alert(path);
+		$.ajax({
+        	method: "POST",
+        	url: "/updatevote/",
+        	data: { vote: value,
+        		userid: path},
+        	success: function(){
+        		alert("successfully changed value");
+
+        	}  
+      	});
+    }
+
+
+
+	function changevote(value,id){
+		alert("changed vote for " +id + " to " + value);
+		
+	}
+
+
+
+
+
+
+
+
+</script>
+
+
+
+
     </div>
 </div>
 

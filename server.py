@@ -235,11 +235,9 @@ def users(userid):
         "where t1.followeeid = t2.id; "
     cursor = g.conn.execute(q,(userid))
     followees = []
-    followeesid = []
     print (q,(userid))
     for result in cursor:
-      followees.append(result['username'])
-      followeesid.append(str(result['id']))
+      followees.append({'name':result['username'], 'id':str(result['id'])})
     cursor.close()
 
     q = "select t2.username, t2.id " + \
@@ -250,15 +248,37 @@ def users(userid):
         "where t1.followerid = t2.id; "
     cursor = g.conn.execute(q,(userid))
     followers = []
-    followersid = []
     for result in cursor:
-      followers.append(result['username'])
-      followersid.append(str(result['id']))
+      followers.append({'name':result['username'], 'id':str(result['id'])})
     cursor.close()
 
-    
+    q = "select id " + \
+        "from defaultuser " + \
+        "where admin = true " + \
+        "and id = %s; "
+
+    cursor = g.conn.execute(q,(userid))
+    admin = 0
+    print (q,(userid))
+    for result in cursor:
+      admin = 1
+    cursor.close()
+    ratings = []
+    if(admin == 1):
+      q = "select avg(rating) " + \
+        "from rates " + \
+        "where adminid = %s; "
+      cursor = g.conn.execute(q,(userid))
+      for result in cursor:
+        if(result['avg']):
+          ratings.append({'avg':str(round(result['avg'], 2))})
+        else:
+          ratings.append({'avg':str(result['avg'])})
+      cursor.close()
+
+    print request.cookies.get('userid')
     context = dict(data=names, usernames = users, retweet = retweets, upvote = upvotes, 
-                   followees=followees, followers = followers, followersid = followersid, followeesid= followeesid)
+                   followees=followees, followers = followers, ratings = ratings)
     print request.path
     return render_template("users.html", **context)
 
@@ -343,6 +363,54 @@ def is_liked():
   for c in cursor:
     isLiked = "true"
   return isLiked
+
+#have to finish later
+@app.route('/updatevote/', methods = ["POST"])
+def updatevote():
+  admin = str(request.form['userid'])
+  rating = str(request.form['vote'])
+  poster = str(request.cookies.get('userid'))
+  admin = str(admin.split("/")[2])
+  print admin
+  print admin + " " + poster
+  q = "select * from rates where adminid = %s and posterid = %s; "
+  cursor = g.conn.execute(q, (admin, poster))
+  print (q, (admin,poster))
+  voted = False
+  for c in cursor:
+    voted = True
+  cursor.close()
+  print voted
+  if (voted):
+    q = "update rates set rating = %s where adminid = %s and posterid = %s; "
+    cursor = g.conn.execute(q, (rating,admin,poster))
+    cursor.close()
+    print "updates"
+  else:
+    q = "insert into rates VALUES(%s,%s,%s); "
+    cursor = g.conn.execute(q, (admin,poster,rating))
+    cursor.close()
+    print "inserts"
+  return ""
+
+
+
+
+
+
+
+@app.route('/rateradmin/', methods=["POST"])
+def rateradmin():
+  if not request.cookies.get('userid'):
+    return false;
+  userid = request.cookies.get('userid')
+  q = "SELECT admin from defaultuser where id = %s"
+  cursor = g.conn.execute(q, (userid))
+  admin = "false"
+  for c in cursor:
+    if(c['admin'] == True):
+      admin = "true"
+  return admin
 
 def create_comment(memetweet_id, comment_name, comment_person_id, comment_content):
   toAddHtml = "<div class='comment_container'>" + \
