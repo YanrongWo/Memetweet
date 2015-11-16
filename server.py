@@ -53,7 +53,7 @@ def test1():
       break
     if not exists:
       q = "INSERT INTO defaultuser VALUES (%s, %s, %s)"
-      g.conn.execute(q, (int(userid), username, True))
+      g.conn.execute(q, (int(userid), username, False))
     response = make_response('changed')
     response.set_cookie('userid', userid)
     response.set_cookie('username', username)
@@ -131,6 +131,7 @@ def most_recent_posts(offset):
     meme['imageurl'] = c['imageurl'].strip()
     meme['title'] = c['title'].strip()
     meme['section'] = "Most_Recent_MemeTweets"
+    meme['isretweet'] = "False"
     memes.append(meme)
   cursor.close()
   return memes;
@@ -169,14 +170,17 @@ def most_pop_posts(offset):
     meme['imageurl'] = c['imageurl'].strip()
     meme['title'] = c['title'].strip()
     meme['section'] = "Most_Popular_MemeTweets"
+    meme['isretweet'] = "False"
     memes.append(meme)
   cursor.close()
   return memes;
 
 def recent_posts_from_following(userid, offset):
+  print offset
   memes = []
-  q = "select meme.id, meme.title, meme.imageurl, meme.userid, defaultuser.username," + \
-      " meme.locked, meme.markasinappropriate " + \
+  q = "select * from " + \
+    "((select meme.id, meme.title, meme.imageurl, meme.userid, defaultuser.username, " + \
+      " meme.locked, meme.markasinappropriate, 1=0 as isretweet, meme.timeuploaded " + \
       "from " + \
       "(select id, title, imageurl, userid, timeUploaded, locked, markasinappropriate " + \
       "from memetweet " + \
@@ -185,8 +189,19 @@ def recent_posts_from_following(userid, offset):
         "from follows " + \
         "where followerid=%s)) as meme, " + \
       "defaultuser " + \
-    "where defaultuser.id = meme.userid order by meme.timeUploaded desc limit " + str(mainlimit) + " offset %s;"
-  cursor = g.conn.execute(q, (userid, offset))
+    "where defaultuser.id = meme.userid) " + \
+    "union " + \
+    "(select m.id, m.title, m.imageurl, u.id, u.username, m.locked, m.markasinappropriate, 1=1 as isretweet, r.timeretweeted " + \
+    "from memetweet m, defaultuser u, " + \
+    "(select r.userid, r.memeid, r.timeretweeted " + \
+    "from retweet r " + \
+    "where r.userid in  " + \
+    "  (select followeeid " + \
+    "  from follows " + \
+    "  where followerid = %s)) as r " + \
+    "where m.id = r.memeid and u.id = r.userid)) as pr " + \
+    "order by timeUploaded desc limit " + str(mainlimit) + " offset %s;"
+  cursor = g.conn.execute(q, (userid, userid, offset))
   for c in cursor:
     meme = {}
     meme['locked'] = c['locked']
@@ -197,6 +212,10 @@ def recent_posts_from_following(userid, offset):
     meme['imageurl'] = c['imageurl'].strip()
     meme['title'] = c['title'].strip()
     meme['section'] = "People_You_Are_Following"
+    if (c['isretweet']):
+      meme['isretweet'] = "True"
+    else:
+      meme['isretweet'] = "False"
     memes.append(meme)
   cursor.close()
   print memes
@@ -266,6 +285,7 @@ def pop_memes_from_category(categoryname, offset):
     meme['imageurl'] = c['imageurl'].strip()
     meme['title'] = c['title'].strip()
     meme['section'] = categoryname
+    meme['isretweet'] = "False"
     memes.append(meme)
   return memes
 
@@ -399,8 +419,9 @@ def retweet():
     return "You must be logged in to do that!"
   memeid = request.form['memeId']
   userid = request.cookies.get('userid')
-  q = "INSERT INTO retweet VALUES(%s, %s);"
-  g.conn.execute(q, (userid, memeid))
+  time = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+  q = "INSERT INTO retweet VALUES(%s, %s, %s);"
+  g.conn.execute(q, (userid, memeid, time))
   return ""
 
 @app.route('/getComments/', methods=["POST"])
@@ -442,7 +463,6 @@ def is_liked():
     isLiked = "true"
   return isLiked
 
-#have to finish later
 @app.route('/updatevote/', methods = ["POST"])
 def updatevote():
   admin = str(request.form['userid'])
@@ -470,12 +490,6 @@ def updatevote():
     cursor.close()
     print "inserts"
   return ""
-
-
-
-
-
-
 
 @app.route('/rateradmin/', methods=["POST"])
 def rateradmin():
