@@ -6,8 +6,12 @@
 {% endblock %}
 
 {% block memetweet %}
+
 <div id='content'>
+{% block users %}
+{% endblock %}
 </div>
+
 <script>
 	var see_more_div = '<div class="seemore" onclick="seeMore(this)"><p>See More</p></div>'
 	function addMemetweet(memetweet_id, memetweet_name, memetweet_title, memetweet_image, person_id, divToAppend, locked, markasinappropriate, isretweet){
@@ -140,6 +144,7 @@
 		{% for meme in memes %}
 		      addMemetweet("{{meme['memeid']}}", "{{meme['username']}}", "{{meme['title']}}","{{meme['imageurl']}}", "{{meme['userid']}}", "{{meme['section']}}", "{{meme['locked']}}", "{{meme['markasinappropriate']}}", "{{meme['isretweet']}}");
 		{% endfor %}
+
 	});
 	
 

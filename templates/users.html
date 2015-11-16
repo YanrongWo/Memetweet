@@ -141,14 +141,14 @@
 	*/
 	function implementvote(value){
 		var path = window.location.pathname;
-		alert(path);
 		$.ajax({
         	method: "POST",
         	url: "/updatevote/",
         	data: { vote: value,
         		userid: path},
         	success: function(){
-        		alert("successfully changed value");
+        		alert("Rated admin as a " + value );
+        		location.reload();
 
         	}  
       	});
@@ -160,13 +160,6 @@
 		alert("changed vote for " +id + " to " + value);
 		
 	}
-
-
-
-
-
-
-
 
 </script>
 

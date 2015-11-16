@@ -386,10 +386,28 @@ def users(userid):
       cursor.close()
 
     print request.cookies.get('userid')
+    meme = []
+    q = "select * from memetweet where userid = %s; "
+    cursor = g.conn.execute(q,(userid))
+    for result in cursor:
+      meme.append({'memeid': result['id'], 'title':result['title'], 'imageurl': result['imageurl'], 
+       'userid': result['userid'], 'section': 'Posts', 'locked': result['locked'],
+       'markasinappropriate': result['markasinappropriate']})
+    cursor.close()
+
+    q = "select * from memetweet left outer join retweet on memetweet.id = retweet.memeid where retweet.userid = %s ;"
+    cursor = g.conn.execute(q,(userid))
+    for result in cursor:
+      meme.append({'memeid': result['id'], 'title':result['title'], 'imageurl': result['imageurl'],
+       'userid': result['userid'], 'section': 'Retweets', 'locked': result['locked'], 
+       'markasinappropriate': result['markasinappropriate']})
+    section = ["Retweets", "Posts"]
     context = dict(data=names, usernames = users, retweet = retweets, upvote = upvotes, 
-                   followees=followees, followers = followers, ratings = ratings)
-    print request.path
+                   followees=followees, followers = followers, ratings = ratings, memes = meme, sections = section)
+    print meme
+    print section
     return render_template("users.html", **context)
+
 
 @app.route('/like/', methods=["POST", "GET"])
 def like():
