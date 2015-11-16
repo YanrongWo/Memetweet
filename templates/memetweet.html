@@ -52,7 +52,7 @@
 				toAddHtml += "		</p>" +
 									"<img src='";
 				toAddHtml += memetweet_image;
-				toAddHtml += "' class='memetweet_image'/>" +
+				toAddHtml += "' class='memetweet_image'/> " + 
 								"</div>" +
 								"<div class='panel-group' id='accordion" + memetweet_id + "' role='tablist' aria-multiselectable='true'>" +
 				  					"<div class='panel panel-default'>" +
@@ -145,8 +145,76 @@
 		      addMemetweet("{{meme['memeid']}}", "{{meme['username']}}", "{{meme['title']}}","{{meme['imageurl']}}", "{{meme['userid']}}", "{{meme['section']}}", "{{meme['locked']}}", "{{meme['markasinappropriate']}}", "{{meme['isretweet']}}");
 		{% endfor %}
 
+		$.ajax({
+        	method: "POST",
+        	url: "/rateradmin/",
+        	data: {},
+        	success: function(admin){
+        				if (admin == "true"){
+        					$(function () {
+  								$('.memetweet_content').each(function(){
+  									var container = getMemeContainer(this);
+  									$(this).append('<div class="popover left">' + 
+									'      <div class="arrow"></div>' + 
+									'      <h3 class="popover-title">Admin Panel</h3>' + 
+									'      <div class="popover-content">' + 
+									'      <button class="delete" onclick="deletes(this)"> Delete </button>' + 
+									'      <button class="nsfw" onclick="nsfw(this)"> Mark as Inappropriate </button>' + 
+									'      <button class="sfw" onclick="sfw(this)"> Mark as Appropriate </button>' + 
+									'      </div>' + 
+									'    </div>');
+  									if ($(container).find('.blocking').size() > 0){
+  										$($(this).find('.nsfw')).hide();
+  									}
+  									else{
+  										$($(this).find('.sfw')).hide();
+  									}
+  								});
+							});
+        					admin = true;
+            				{% block isadmin %} {% endblock %}
+            			}
+            			else{
+            				admin = false;
+            			}
+        			}
+        });  
 	});
 	
+	function deletes(element){
+		$.ajax({
+        	method: "POST",
+        	url: "/delete/",
+        	data: { memeId: getMemeId(element) },
+        	success: function(data){
+        		$(getMemeContainer(element)).css('display', 'none');
+        	}  
+      	});
+	}
+
+	function nsfw(element){
+		var container = getMemeId(element);
+		$.ajax({
+        	method: "POST",
+        	url: "/nsfw/",
+        	data: { memeId: getMemeId(element) },
+        	success: function(data){
+        		window.location.reload(true);
+        	}  
+      	});
+	}
+
+	function sfw(element){
+		var container = getMemeId(element);
+		$.ajax({
+        	method: "POST",
+        	url: "/sfw/",
+        	data: { memeId: getMemeId(element) },
+        	success: function(data){
+        		window.location.reload(true);
+        	}  
+      	});
+	}
 
 	function addComment(memetweet_id, comment_name, comment_person_id, comment_content, divToAppend){
 		toAddHtml = "<div class='comment_container'>" +

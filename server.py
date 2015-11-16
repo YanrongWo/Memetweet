@@ -556,6 +556,27 @@ def newMemetweet():
   g.conn.execute(q, (title, imageurl, time, userid, locked, markasinappropriate, category))
   return ""
 
+@app.route('/delete/', methods=["POST"])
+def delete():
+  memeid = request.form['memeId']
+  q = "DELETE FROM memetweet WHERE id = %s"
+  g.conn.execute(q, (memeid));
+  return ''
+
+@app.route('/nsfw/', methods=['POST'])
+def nsfw():
+  memeid = request.form['memeId']
+  q = "UPDATE memetweet SET markasinappropriate = TRUE WHERE id = %s"
+  g.conn.execute(q, (memeid));
+  return ''
+
+@app.route('/sfw/', methods=['POST'])
+def sfw():
+  memeid = request.form['memeId']
+  q = "UPDATE memetweet SET markasinappropriate = FALSE WHERE id = %s"
+  g.conn.execute(q, (memeid));
+  return ''
+
 @app.route('/seeMore/', methods=["POST"])
 def see_more():
   section = request.form['section']

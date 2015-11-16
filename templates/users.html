@@ -106,46 +106,7 @@
 
 
 <script>
-	var first_time = true;
-	$( document ).ready(function() {
-		if (first_time){
-			first_time = false;
-			$.ajax({
-        	method: "POST",
-        	url: "/rateradmin/",
-        	data: {},
-        	success: function(admin){
-        				if (admin == "true"){
-            				document.getElementById('adminrating').innerHTML = "You can't rate other admins!";
-            			}
-        	}  
-      	});
-	}
 
-	});
-/*
-	function changeto1(){
-		alert("changed vote for to 1");
-		implementvote(1);
-		
-	}function changeto2(){
-		alert("changed vote for to 2");
-		implementvote(2);
-		
-	}function changeto3(){
-		alert("changed vote for to 3");
-		implementvote(3);
-		
-	}function changeto4(){
-		alert("changed vote for to 4");
-		implementvote(4);
-		
-	}
-	function changeto5(){
-		alert("changed vote for to 5");
-		implementvote(5);
-	}
-	*/
 	function implementvote(value){
 		var path = window.location.pathname;
 		$.ajax({
@@ -162,20 +123,15 @@
     }
 
 
-
-	function changevote(value,id){
-		alert("changed vote for " +id + " to " + value);
-		
-	}
-
 </script>
-
-
-
 
     </div>
 </div>
 
 
 
+{% endblock %}
+
+{% block isadmin %}
+	document.getElementById('adminrating').innerHTML = "You can't rate other admins!";
 {% endblock %}
