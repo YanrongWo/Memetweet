@@ -8,17 +8,18 @@
 {% block users %}
 <div class = "container infocontainer">
 	<div class="mysidebar">
-		{% if loggedin %}
+		{% if loggedin and not myPage %}
 		  <ul class="nav nav-sidebar info">
-		  		<button onclick='follow'
+		  		<button class='topbuttons' id='follow' onclick='follow()'
 		  	{% if isfollowing %}
 				style='display:none'
 		  	{% endif %}
 		  		> Follow </button>
-		  		<button onclick='unfollow'
-		  	{% if not following %}
-		  		style='display:none'> Unfollow </button>
+		  		<button class='topbuttons' id='unfollow' onclick='unfollow()'
+		  	{% if not isfollowing %}
+		  		style='display:none'
 		  	{% endif %}
+		  		> Unfollow </button>
 		  </ul>
 		{% endif %}
           <ul class="nav nav-sidebar info">
@@ -138,6 +139,32 @@
       	});
     }
 
+    function follow(){
+    	console.log("here2");
+    	$.ajax({
+        	method: "POST",
+        	url: "/follow/",
+        	success: function(){
+        		console.log("follow");
+        		$('#follow').hide();
+        		$('#unfollow').show();
+        	}  
+      	});
+    }
+
+    function unfollow(){
+    	console.log("here1");
+    	$.ajax({
+        	method: "POST",
+        	url: "/unfollow/",
+        	success: function(){
+        		console.log("unfollow");
+        		$('#follow').show();
+        		$('#unfollow').hide();
+        	}  
+      	});
+
+    }
 
 </script>
 
@@ -149,5 +176,7 @@
 {% endblock %}
 
 {% block isadmin %}
-	document.getElementById('adminrating').innerHTML = "You can't rate other admins!";
+	if (document.getElementById('adminrating')){
+		document.getElementById('adminrating').innerHTML = "You can't rate other admins!";
+	}
 {% endblock %}

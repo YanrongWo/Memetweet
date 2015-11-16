@@ -19,3 +19,17 @@
 #infoname{
 	font-size: 20px;
 }
+
+.topbuttons{
+    background-color: #eee;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 10px;
+    margin: 0 auto;
+    position: relative;
+    left: 35%;
+}
+
+.topbuttons:hover{
+    background-color: #ccc;
+}
