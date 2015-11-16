@@ -1,0 +1,19 @@
+.info{	
+	border: 1px solid #ccc;
+    border-radius: 4px;
+    margin: 20px;
+    display: block;
+    position: relative;
+    padding: 10px;
+}
+
+.infocontainer{
+	width: 300px;
+    position: relative;
+    float: right;
+    margin: 0;
+}
+
+#infoname{
+	font-size: 20px;
+}
