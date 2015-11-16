@@ -3,7 +3,7 @@ from sqlalchemy import *
 from sqlalchemy.pool import NullPool
 from flask import Flask, request, render_template, g, redirect, Response, make_response
 import datetime
-
+import json
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
@@ -54,20 +54,19 @@ def test1():
     if not exists:
       q = "INSERT INTO defaultuser VALUES (%s, %s, %s)"
       g.conn.execute(q, (int(userid), username, True))
-    response = make_response('')
+    response = make_response('changed')
     response.set_cookie('userid', userid)
     response.set_cookie('username', username)
     return response
   return ''
 
 
-
 @app.route('/test2/', methods=["POST", "GET"])
 def test2():
   if request.cookies.get('userid'):
-    response = make_response('')
-    response.set_cookies('userid', None)
-    response.set_cookies('username', None)
+    response = make_response('changed')
+    response.set_cookie('userid', '', expires=0)
+    response.set_cookie('username', '', expires=0)
     return response
   return ''
 
@@ -75,9 +74,9 @@ def test2():
 @app.route('/test3/', methods=["POST", "GET"])
 def test3():
   if request.cookies.get('userid'):
-    response = make_response('')
-    response.set_cookies('userid', None)
-    response.set_cookies('username', None)
+    response = make_response('changed')
+    response.set_cookie('userid', '', expires=0)
+    response.set_cookie('username', '', expires=0)
     return response
   return ''
 
@@ -92,10 +91,11 @@ def index():
   cursor.close()
   context=dict(data=names)
   memes = []
+  context["sections"] = []
   #Get recent memes posted by the people you're following
   if request.cookies.get('userid'):
     memes = memes + recent_posts_from_following(request.cookies.get('userid'), 0)
-    context["sections"] = ["People_You_Are_Following"]
+    context["sections"].append("People_You_Are_Following")
     
   #Get most popular memes
   memes = memes + most_pop_posts(0)
@@ -125,7 +125,6 @@ def most_recent_posts(offset):
     meme = {}
     meme['locked'] = c['locked']
     meme['markasinappropriate'] = c['markasinappropriate']
-    meme['timeuploaded'] = c['timeuploaded']
     meme['memeid'] = c['id']
     meme['userid'] = c['userid']
     meme['username'] = c['username']
@@ -138,7 +137,7 @@ def most_recent_posts(offset):
 
 def most_pop_posts(offset):
   memes = []
-  q = "select mru.id, mru.title, mru.imageurl, mru.userid, mru.locked, mru.timeuploaded, mru.markasinappropriate," + \
+  q = "select mru.id, mru.title, mru.imageurl, mru.userid, mru.locked, mru.markasinappropriate," + \
       " mru.categoryname, mru.retweets, mru.upvotes, defaultuser.username " + \
       "from  " + \
       "  (select mr.id, mr.title, mr.imageurl, mr.userid, mr.locked, " + \
@@ -164,7 +163,6 @@ def most_pop_posts(offset):
     meme = {}
     meme['locked'] = c['locked']
     meme['markasinappropriate'] = c['markasinappropriate']
-    meme['timeuploaded'] = c['timeuploaded']
     meme['memeid'] = c['id']
     meme['userid'] = c['userid']
     meme['username'] = c['username']
@@ -178,7 +176,7 @@ def most_pop_posts(offset):
 def recent_posts_from_following(userid, offset):
   memes = []
   q = "select meme.id, meme.title, meme.imageurl, meme.userid, defaultuser.username," + \
-      " meme.timeUploaded, meme.locked, meme.markasinappropriate " + \
+      " meme.locked, meme.markasinappropriate " + \
       "from " + \
       "(select id, title, imageurl, userid, timeUploaded, locked, markasinappropriate " + \
       "from memetweet " + \
@@ -192,7 +190,6 @@ def recent_posts_from_following(userid, offset):
   for c in cursor:
     meme = {}
     meme['locked'] = c['locked']
-    meme['timeuploaded'] = c['timeuploaded']
     meme['markasinappropriate'] = c['markasinappropriate']
     meme['memeid'] = c['id']
     meme['userid'] = c['userid']
@@ -202,7 +199,8 @@ def recent_posts_from_following(userid, offset):
     meme['section'] = "People_You_Are_Following"
     memes.append(meme)
   cursor.close()
-  return memes;
+  print memes
+  return memes
 
 categorylimit = 10
 @app.route('/categories/<categoryname>/', methods=["POST", "GET"])
@@ -455,6 +453,35 @@ def newMemetweet():
       "VALUES (%s, %s, %s, %s, %s, %s, %s);"
   g.conn.execute(q, (title, imageurl, time, userid, locked, markasinappropriate, category))
   return ""
+
+@app.route('/seeMore/', methods=["POST"])
+def see_more():
+  section = request.form['section']
+  cookie_name = ""
+  offset = 0
+  memes = []
+  if section == "People_You_Are_Following" and request.cookies.get('userid'):
+    offset = request.cookies.get('followeroffset')
+    cookie_name = 'followeroffset'
+    memes = recent_posts_from_following(request.cookies.get('userid'), offset)
+    offset = str(int(offset) + int(mainlimit))
+  elif section == "Most_Popular_MemeTweets":
+    offset = request.cookies.get('popularoffset')
+    cookie_name = 'popularoffset'
+    memes = most_pop_posts(offset)
+    offset = str(int(offset) + int(mainlimit))
+  elif section == "Most_Recent_MemeTweets":
+    offset = request.cookies.get('popularoffset')
+    cookie_name = 'popularoffset'
+    memes = most_recent_posts(offset)
+    offset = str(int(offset) + int(mainlimit))
+  else:
+    offset = request.cookies.get(section + "offset")
+    cookie_name = section + "offset"
+    memes = pop_memes_from_category(section, offset)
+    offset = str(int(offset) + int(categorylimit))
+  result = { "offset": offset, "cookie_name" : cookie_name, "memes": memes}
+  return json.dumps(result)
 
 if __name__ == "__main__":
   import click
