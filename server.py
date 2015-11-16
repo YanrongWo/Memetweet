@@ -374,8 +374,13 @@ def users(userid):
     cursor.close()
     ratings = -1
     loggedin = False
+    isfollowing = False
     if(request.cookies.get('userid')):
       loggedin = True
+      q = "select * from follows where followerid = %s"
+      cursor = g.conn.execute(q, (request.cookies.get('userid')))
+      for c in cursor:
+        isfollowing = True
 
     limit = 5
     if(admin == 1):
@@ -393,13 +398,15 @@ def users(userid):
 
     meme = meme + getretweets(userid, 0)
 
+
     section = ["Retweets", "Posts"]
     context = dict(data=names, usernames = users, retweet = retweets, upvote = upvotes, 
                    followees=followees, followers = followers, ratings = ratings, memes = meme, sections = section, 
-                   loggedin = loggedin, limit = limit, admin=admin)
+                   loggedin = loggedin, limit = limit, admin=admin, isfollowing = isfollowing)
     response = make_response(render_template("users.html", **context))
     response.set_cookie("postsoffset", str(5));
     response.set_cookie("retweetsoffset", str(5));
+    response.set_cookie('otheruserid', userid);
     return response
 
 def getposts(userid, offset):
@@ -620,11 +627,13 @@ def see_more():
   elif section == "Posts":
     offset = request.cookies.get('postsoffset')
     cookie_name = 'postsoffset'
+    memes = getposts(request.cookies.get('otheruserid'), offset)
     offset = str(int(offset) + 5)
   elif section == "Retweets":
     offset = request.cookies.get('retweetsoffset')
     cookie_name = 'retweetsoffset'
-    str(int(offset) + 5)
+    memes = getretweets(request.cookies.get('otheruserid'), offset)
+    offset = str(int(offset) + 5)
   else:
     offset = request.cookies.get(section + "offset")
     cookie_name = section + "offset"

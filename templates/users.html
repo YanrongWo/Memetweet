@@ -8,6 +8,19 @@
 {% block users %}
 <div class = "container infocontainer">
 	<div class="mysidebar">
+		{% if loggedin %}
+		  <ul class="nav nav-sidebar info">
+		  		<button onclick='follow'
+		  	{% if isfollowing %}
+				style='display:none'
+		  	{% endif %}
+		  		> Follow </button>
+		  		<button onclick='unfollow'
+		  	{% if not following %}
+		  		style='display:none'> Unfollow </button>
+		  	{% endif %}
+		  </ul>
+		{% endif %}
           <ul class="nav nav-sidebar info">
           	<div>
 	            {% for n in usernames %}
