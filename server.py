@@ -402,7 +402,7 @@ def users(userid):
     q = "select * from memetweet left outer join retweet on memetweet.id = retweet.memeid where retweet.userid = %s ;"
     cursor = g.conn.execute(q,(userid))
     for result in cursor:
-      meme.append({'memeid': result['id'], 'title':result['title'], 'imageurl': result['imageurl'],
+      meme.append({'memeid': result['id'], 'title':result['title'].strip(), 'imageurl': result['imageurl'].strip(),
        'userid': result['userid'], 'section': 'Retweets', 'locked': result['locked'], 
        'markasinappropriate': result['markasinappropriate'], 'isretweet': 'True' })
     section = ["Retweets", "Posts"]
