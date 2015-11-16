@@ -372,7 +372,7 @@ def users(userid):
     for result in cursor:
       admin = 1
     cursor.close()
-    ratings = []
+    ratings = -1
     loggedin = False
     if(request.cookies.get('userid')):
       loggedin = True
@@ -385,9 +385,7 @@ def users(userid):
       cursor = g.conn.execute(q,(userid))
       for result in cursor:
         if(result['avg']):
-          ratings.append({'avg':str(round(result['avg'], 2))})
-        else:
-          ratings.append({'avg':str(result['avg'])})
+          ratings = str(round(result['avg'], 2))
       cursor.close()
 
     meme = []
@@ -408,7 +406,7 @@ def users(userid):
     section = ["Retweets", "Posts"]
     context = dict(data=names, usernames = users, retweet = retweets, upvote = upvotes, 
                    followees=followees, followers = followers, ratings = ratings, memes = meme, sections = section, 
-                   loggedin = loggedin, limit = limit)
+                   loggedin = loggedin, limit = limit, admin=admin)
 
     return render_template("users.html", **context)
 

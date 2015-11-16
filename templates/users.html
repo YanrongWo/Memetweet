@@ -42,6 +42,9 @@
 				<a href= {{urlname}}> {{n.name}} </a>
 			    </li>
 			    {% endfor %}
+			    {% if followers|length == 0 %}
+			    	No one :(
+			    {% endif %}
              </div>
           </ul>
 
@@ -54,19 +57,22 @@
 				<a href= {{urlname}}> {{n.name}} </a>
 			    </li>
 			    {% endfor %}
+			    {% if followees|length == 0 %}
+			    	No one :(
+			    {% endif %}
              </div>
           </ul>
-
+          {% if admin == 1%}
           <ul class="nav nav-sidebar info">
 			 <div id = 'admin'>
-			 	{% if ratings %}
-			 	{% for n in ratings %}
 			    Avg Rating:
 			    <li>
-			    {{n.avg}}
+			    {% if not ratings == -1%}
+			    	{{ratings}}
+			    {% else %}
+			    	Admin doesn't have a rating yet!
+			    {% endif %}
 			    </li>
-				{% endfor %}
-				{% endif %}
 			 </div>
           </ul>
 		  {% if loggedin %}
@@ -94,6 +100,7 @@
 	        	</div>
 	    	</div>
 	    	{% endif %}
+	    	{% endif %}
 		</div>
     </ul>
 
@@ -109,7 +116,7 @@
         	data: {},
         	success: function(admin){
         				if (admin == "true"){
-            				document.getElementById('adminrating').style.display = 'none';
+            				document.getElementById('adminrating').innerHTML = "You can't rate other admins!";
             			}
         	}  
       	});
